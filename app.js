@@ -27,7 +27,7 @@ function normalizeSubject(subj) {
     return String(subj).trim();
 }
 
-// 統一清洗班級格式 (去除 .0、空格等)
+// 統一清洗班級格式 (去除 .0、前後空格)
 function normalizeClassName(c) {
     if (c === null || c === undefined) return '';
     let str = String(c).trim();
@@ -58,7 +58,6 @@ function showAlert(elementId, msg) {
 function isClassMatch(rawClassStr, targetClass) {
     if (!rawClassStr || !targetClass) return false;
     const target = normalizeClassName(targetClass);
-    // 依空格、斜線、頓號、逗號切割班級名稱
     const classes = String(rawClassStr).split(/[\s/,\u3001]+/).map(normalizeClassName);
     return classes.includes(target);
 }
@@ -85,7 +84,6 @@ function parseCSV(text) {
             row[h] = val;
         });
 
-        // 整理 teachername
         const tName = (row.teachername || row.teacherName || '').trim();
         if (tName) {
             row.teachername = tName;
@@ -159,7 +157,7 @@ async function handleLogin(e) {
     if (success) {
         showView('queryView');
     } else {
-        showAlert('loginError', '課表資料載入失敗，請確認 teacher_11501.csv 檔案是否存在！');
+        showAlert('loginError', '課表資料載入失敗，請確認 CSV 檔案是否存在！');
     }
 }
 
@@ -258,7 +256,6 @@ function populateQuerySelects() {
         else selSp?.appendChild(opt);
     });
 
-    // 填入科目下拉選單
     if (subjectSelect) {
         subjectSelect.innerHTML = '<option value="">— 選擇科目 —</option>';
         Object.keys(subjectTeachers).sort().forEach(subj => {
@@ -269,7 +266,6 @@ function populateQuerySelects() {
         });
     }
 
-    // 預設將教師下拉選單載入所有教師
     const teacherSelect = document.getElementById('teacherSelect');
     if (teacherSelect) {
         teacherSelect.innerHTML = '<option value="">— 選擇教師 —</option>';
@@ -299,7 +295,6 @@ function onSubjectChange() {
             teacherSelect.appendChild(opt);
         });
     } else {
-        // 若未選科目，顯示全部教師
         const allTeachers = [...new Set(scheduleData.map(r => r.teachername))].sort();
         allTeachers.forEach(t => {
             const opt = document.createElement('option');
@@ -334,17 +329,16 @@ function submitTeacherQuery() {
     displayTeacherSchedule(t);
 }
 
-// ── 課表繪製邏輯 ──────────────────────────────────────────────
+// ── 班級課表繪製邏輯 ──────────────────────────────────────────
 function displayClassSchedule(className) {
     const targetClass = normalizeClassName(className);
     lastQueryTarget = targetClass;
     const cells = {};
-    const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     scheduleData.forEach(row => {
         const teacher = row.teachername;
         for (let d = 1; d <= 5; d++) {
-            for (let p of PERIODS) {
+            for (let p = 0; p <= 9; p++) {
                 const cStr = row[`c${d}${p}`];
                 if (cStr && isClassMatch(cStr, targetClass)) {
                     const key = `${d}-${p}`;
@@ -373,6 +367,7 @@ function displayClassSchedule(className) {
     showView('resultView');
 }
 
+// ── 教師課表繪製邏輯 ──────────────────────────────────────────
 function displayTeacherSchedule(teacherName) {
     const tName = String(teacherName).trim();
     lastQueryTarget = tName;
@@ -380,9 +375,8 @@ function displayTeacherSchedule(teacherName) {
     const row = scheduleData.find(r => r.teachername === tName);
 
     if (row) {
-        const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         for (let d = 1; d <= 5; d++) {
-            for (let p of PERIODS) {
+            for (let p = 0; p <= 9; p++) {
                 const subj = row[`s${d}${p}`];
                 const cStr = row[`c${d}${p}`];
                 if (subj || cStr) {
@@ -423,13 +417,12 @@ function getSameSubjectFreeTeachers(subject, day, period) {
 function getClassFreeTeachers(className, day, period) {
     if (!className) return [];
     const targetClass = normalizeClassName(className);
-    const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
     const classTeachers = new Set();
+
     scheduleData.forEach(row => {
         const tName = row.teachername;
         for (let d = 1; d <= 5; d++) {
-            for (let p of PERIODS) {
+            for (let p = 0; p <= 9; p++) {
                 const cStr = row[`c${d}${p}`];
                 if (cStr && isClassMatch(cStr, targetClass) && tName) {
                     classTeachers.add(tName);
@@ -446,16 +439,17 @@ function getClassFreeTeachers(className, day, period) {
     }).sort();
 }
 
-// ── 課表表格渲染 ──────────────────────────────────────────────
+// ── 課表表格渲染 (精確 1:1 對齊節次與 CSV 欄位) ──────────────────
 function buildScheduleTable(cells, mode, currentTargetName) {
     const periods = (typeof CONFIG !== 'undefined' && CONFIG.PERIOD_TIMES) || [];
-    const hasEarly = Object.keys(cells).some(k => k.endsWith('-0'));
-
+    
     let html = '<table class="schedule-table"><thead><tr>';
     html += '<th class="th-period">節次</th>';
     DAYS.forEach(d => html += `<th>${d}</th>`);
     html += '</tr></thead><tbody>';
 
+    // 1. 早自習 (p = 0，即 c10, c20, c30...)
+    const hasEarly = Object.keys(cells).some(k => k.endsWith('-0'));
     if (hasEarly) {
         const et = periods[0] || { start: '07:35', end: '08:10' };
         html += `<tr><td class="td-period">
@@ -468,6 +462,7 @@ function buildScheduleTable(cells, mode, currentTargetName) {
         html += '</tr>';
     }
 
+    // 2. 正式課表 第 1 節 ~ 第 8 節 (p = 1 ~ 8，即 c11~c18...)
     for (let p = 1; p <= 8; p++) {
         const pt = periods[p] || { start: '', end: '' };
         html += `<tr><td class="td-period"><div class="period-num">第${p}節</div>`;
