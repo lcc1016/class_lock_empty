@@ -6,25 +6,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
 :root {
-    --bg-from:    #f0f9ff;
-    --bg-via:     #e0f2fe;
-    --bg-to:      #bae6fd;
-    --glass-bg:   rgba(255, 255, 255, 0.7);
-    --glass-bdr:  rgba(255, 255, 255, 0.9);
-    --glass-blur: blur(20px);
-    --accent:     #0284c7;
-    --accent-dim: rgba(2, 132, 199, 0.15);
-    --accent2:    #4f46e5;
-    --text:       #1e293b;
+    --bg-from:     #f0f9ff;
+    --bg-via:      #e0f2fe;
+    --bg-to:       #bae6fd;
+    --glass-bg:    rgba(255, 255, 255, 0.7);
+    --glass-bdr:   rgba(255, 255, 255, 0.9);
+    --glass-blur:  blur(20px);
+    --accent:      #0284c7;
+    --accent-dim:  rgba(2, 132, 199, 0.15);
+    --accent2:     #4f46e5;
+    --text:        #1e293b;
     --text-primary: #0f172a;
-    --text-dim:   #475569;
-    --danger:     #ef4444;
-    --success:    #22c55e;
-    --warn:       #eab308;
-    --card-radius:1rem;
-    --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    --shadow-lg:  0 25px 50px rgba(0,0,0,0.4);
-    --shadow-md:  0 10px 25px rgba(0,0,0,0.25);
+    --text-dim:    #475569;
+    --danger:      #ef4444;
+    --success:     #22c55e;
+    --warn:        #eab308;
+    --card-radius: 1rem;
+    --transition:  0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-lg:   0 25px 50px rgba(0,0,0,0.4);
+    --shadow-md:   0 10px 25px rgba(0,0,0,0.25);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -280,18 +280,18 @@ body::before {
 .action-bar-left { display: flex; align-items: center; gap: 0.75rem; }
 .action-bar-right { display: flex; gap: 0.5rem; }
 
-/* ── 標題與代課選單排版容器 ─────────────────────────────────── */
+/* ── 標題排版容器 ─────────────────────────────────── */
 .title-header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    justify-content: center;
     margin-bottom: 1.25rem;
+    width: 100%;
 }
 
+/* 隱藏代課選單 */
 .substitute-select-group {
-    flex: 1;
-    max-width: 200px;
+    display: none !important;
 }
 
 .sub-select {
@@ -305,7 +305,6 @@ body::before {
     font-size: 1.6rem;
     font-weight: 700;
     margin: 0;
-    flex: 2;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -519,7 +518,6 @@ body::before {
     .login-card, .query-card { padding: 2rem 1.25rem; }
     .schedule-title { font-size: 1.2rem; }
     .title-header-container { flex-direction: column; gap: 0.5rem; }
-    .substitute-select-group { max-width: 100%; width: 100%; }
     .action-bar { flex-direction: column; align-items: flex-start; }
     .timetable { min-width: 500px; }
     .timetable thead th { font-size: 0.75rem; padding: 0.6rem 0.3rem; }
@@ -573,6 +571,7 @@ body::before {
     border-radius: 0.5rem;
     background: var(--glass-bg);
 }
+
 /* ── 課表儲存格內部 Flex 佈局 ────────────────────────────── */
 .cell-content-wrapper {
     display: flex;
@@ -588,7 +587,7 @@ body::before {
 .cell-main-info {
     flex: 1;
     text-align: center;
-    min-width: 0; /* 避免文字溢出 */
+    min-width: 0;
 }
 
 .cell-subject {
@@ -615,7 +614,6 @@ body::before {
     cursor: pointer;
     outline: none;
     transition: all 0.2s ease;
-    /* 限制微型選單寬度 */
     max-width: 58px;
     flex-shrink: 0;
 }
@@ -631,12 +629,12 @@ body::before {
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
 
-/* 列印時隱藏儲存格內的代課選單，僅保留課程名稱與教師 */
 @media print {
     .cell-sub-select {
         display: none !important;
     }
 }
+
 /* ══ 1. 可點擊科目樣式 ══════════════════════════════════════ */
 .clickable-subject {
     cursor: pointer !important;
@@ -648,7 +646,6 @@ body::before {
     padding: 2px 4px;
     border-radius: 4px;
     display: inline-block;
-/* 補上這兩行，確保點擊事件優先權高於父階層容器 */
     position: relative;
     z-index: 5;
 }
@@ -660,7 +657,7 @@ body::before {
 
 /* ══ 2. 代課教師 Modal 彈窗樣式 ════════════════════════════ */
 .modal-overlay {
-    display: none; /* 預設隱藏 */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -721,7 +718,6 @@ body::before {
     overflow-y: auto;
 }
 
-/* 按鈕網格版面 */
 .teacher-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
