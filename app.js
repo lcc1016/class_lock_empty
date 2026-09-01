@@ -44,25 +44,42 @@ function showAlert(elementId, msg) {
     }
 }
 
-// ── CSV 解析器 ───────────────────────────────────────────────
+// ── 判斷班級是否精準匹配 ───────────────────────────────────────
+function isClassMatch(rawClassStr, targetClass) {
+    if (!rawClassStr || !targetClass) return false;
+    // 依空格、斜線、頓號、逗號切割班級名稱
+    const classes = rawClassStr.split(/[\s/,\u3001]+/).map(c => c.trim());
+    return classes.includes(targetClass.trim());
+}
+
+// ── CSV 解析器 (修復 BOM 字元與解析問題) ──────────────────────
 function parseCSV(text) {
-    const lines = text.split(/\r\n|\n/);
+    // 移除 UTF-8 BOM 開頭，避免標頭 teachername 抓不到
+    let cleanText = text.replace(/^\uFEFF/, '');
+    const lines = cleanText.split(/\r\n|\n/);
     if (lines.length === 0) return [];
 
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
     const result = [];
 
     for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
+        const line = lines[i].trim();
+        if (!line) continue;
+
         const row = {};
-        // 正則處理包含引號與逗號的欄位
-        const cells = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+        // 正則匹配 CSV 欄位（處理逗號與雙引號）
+        const matches = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || line.split(',');
 
         headers.forEach((h, idx) => {
-            let val = cells[idx] ? cells[idx].trim() : '';
+            let val = matches[idx] ? matches[idx].trim() : '';
             val = val.replace(/^"|"$/g, '');
             row[h] = val;
         });
+
+        // 兼容大小寫鍵值
+        if (row.teachername && !row.teacherName) {
+            row.teacherName = row.teachername;
+        }
         result.push(row);
     }
     return result;
@@ -148,14 +165,8 @@ async function loadScheduleData(semester) {
         const res = await fetch(csvUrl);
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
-        const contentType = res.headers.get('content-type') || '';
-
-        if (contentType.includes('json') || csvUrl.endsWith('.json')) {
-            scheduleData = await res.json();
-        } else {
-            const csvText = await res.text();
-            scheduleData = parseCSV(csvText);
-        }
+        const csvText = await res.text();
+        scheduleData = parseCSV(csvText);
 
         parseSubjectTeachers();
         populateQuerySelects();
@@ -172,7 +183,7 @@ function parseSubjectTeachers() {
     const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     scheduleData.forEach(row => {
-        const teacher = row.teachername;
+        const teacher = row.teachername || row.teacherName;
         if (!teacher) return;
 
         for (let d = 1; d <= 5; d++) {
@@ -210,7 +221,7 @@ function populateQuerySelects() {
             for (let p of PERIODS) {
                 const cStr = row[`c${d}${p}`];
                 if (cStr) {
-                    cStr.split(/[\s/]+/).forEach(c => {
+                    cStr.split(/[\s/,\u3001]+/).forEach(c => {
                         if (c.trim()) classes.add(c.trim());
                     });
                 }
@@ -229,9 +240,9 @@ function populateQuerySelects() {
         opt.value = c;
         opt.textContent = c;
 
-        if (/^[77]/.test(c) || c.startsWith('7') || c.startsWith('七')) sel7?.appendChild(opt);
-        else if (/^[88]/.test(c) || c.startsWith('8') || c.startsWith('八')) sel8?.appendChild(opt);
-        else if (/^[99]/.test(c) || c.startsWith('9') || c.startsWith('九')) sel9?.appendChild(opt);
+        if (/^[7七]/.test(c) || c.startsWith('7')) sel7?.appendChild(opt);
+        else if (/^[8八]/.test(c) || c.startsWith('8')) sel8?.appendChild(opt);
+        else if (/^[9九]/.test(c) || c.startsWith('9')) sel9?.appendChild(opt);
         else selSp?.appendChild(opt);
     });
 
@@ -294,10 +305,12 @@ function displayClassSchedule(className) {
     const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     scheduleData.forEach(row => {
+        const teacher = row.teachername || row.teacherName;
         for (let d = 1; d <= 5; d++) {
             for (let p of PERIODS) {
                 const cStr = row[`c${d}${p}`];
-                if (cStr && cStr.split(/[\s/]+/).includes(className)) {
+                // 使用精確邊界判定，解決多合班課表擠在一起的問題
+                if (cStr && isClassMatch(cStr, className)) {
                     const key = `${d}-${p}`;
                     if (!cells[key]) {
                         cells[key] = {
@@ -306,8 +319,8 @@ function displayClassSchedule(className) {
                             isLocked: row[`l${d}${p}`] === 1 || row[`l${d}${p}`] === '1'
                         };
                     }
-                    if (!cells[key].items.includes(row.teachername)) {
-                        cells[key].items.push(row.teachername);
+                    if (teacher && !cells[key].items.includes(teacher)) {
+                        cells[key].items.push(teacher);
                     }
                 }
             }
@@ -326,7 +339,7 @@ function displayClassSchedule(className) {
 function displayTeacherSchedule(teacherName) {
     lastQueryTarget = teacherName;
     const cells = {};
-    const row = scheduleData.find(r => r.teachername === teacherName);
+    const row = scheduleData.find(r => (r.teachername || r.teacherName) === teacherName);
 
     if (row) {
         const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -338,7 +351,7 @@ function displayTeacherSchedule(teacherName) {
                     const key = `${d}-${p}`;
                     cells[key] = {
                         subject: subj || '',
-                        items: cStr ? cStr.split(/[\s/]+/) : [],
+                        items: cStr ? cStr.split(/[\s/,\u3001]+/) : [],
                         isLocked: row[`l${d}${p}`] === 1 || row[`l${d}${p}`] === '1'
                     };
                 }
@@ -362,7 +375,7 @@ function getSameSubjectFreeTeachers(subject, day, period) {
     const candidateTeachers = subjectTeachers[baseSubj] || [];
 
     return candidateTeachers.filter(tName => {
-        const row = scheduleData.find(r => r.teachername === tName);
+        const row = scheduleData.find(r => (r.teachername || r.teacherName) === tName);
         if (!row) return false;
         const subjInSlot = row[`s${day}${period}`];
         return !subjInSlot || subjInSlot.trim() === '';
@@ -375,18 +388,19 @@ function getClassFreeTeachers(className, day, period) {
 
     const classTeachers = new Set();
     scheduleData.forEach(row => {
+        const tName = row.teachername || row.teacherName;
         for (let d = 1; d <= 5; d++) {
             for (let p of PERIODS) {
                 const cStr = row[`c${d}${p}`];
-                if (cStr && cStr.split(/[\s/]+/).includes(className)) {
-                    classTeachers.add(row.teachername);
+                if (cStr && isClassMatch(cStr, className) && tName) {
+                    classTeachers.add(tName);
                 }
             }
         }
     });
 
     return [...classTeachers].filter(tName => {
-        const row = scheduleData.find(r => r.teachername === tName);
+        const row = scheduleData.find(r => (r.teachername || r.teacherName) === tName);
         if (!row) return false;
         const subjInSlot = row[`s${day}${period}`];
         return !subjInSlot || subjInSlot.trim() === '';
