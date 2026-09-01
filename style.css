@@ -282,17 +282,58 @@ body {
     gap: 10px;
 }
 
+/* ── 課表結果頁標頭與導師資訊對齊 ───────────────────────── */
 .title-header-container {
-    text-align: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: 10px 0 20px;
+    width: 100%;
 }
 
+/* 班課表名稱：絕對居中 */
 .schedule-title {
     font-size: 1.7rem;
     font-weight: 800;
     color: #1d4ed8;                 /* 標題藍色 */
+    text-align: center;
+    margin: 0;
 }
 
+/* 導師資訊：靠右側對齊（置於週五上方） */
+.homeroom-teacher-info {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+    background-color: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+/* RWD 行動裝置相容調整 */
+@media screen and (max-width: 600px) {
+    .title-header-container {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .schedule-title {
+        font-size: 1.2rem !important;
+    }
+
+    .homeroom-teacher-info {
+        position: static;
+        transform: none;
+        font-size: 0.8rem;
+        padding: 2px 8px;
+    }
+}
 /* ── 課表表格結構與橫向滾動 ─────────────────────────────── */
 .table-responsive {
     width: 100%;
