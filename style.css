@@ -5,18 +5,18 @@
 
 /* ── 全域變數設定 ───────────────────────────────────────── */
 :root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
+    --primary-color: #0284c7;      /* 天藍色主題 */
+    --primary-hover: #0369a1;
     --amber-color: #d97706;        /* 該班其他科目主題色 (橘) */
     --amber-hover: #b45309;
-    --bg-color: #f0fdf4;
+    --bg-color: #e0f2fe;           /* 頁面淡藍色背景 */
     --card-bg: #ffffff;
     --text-color: #1f2937;
     --text-dim: #6b7280;
-    --border-color: #e5e7eb;
-    --locked-bg: #fff1f2;
+    --border-color: #f1f5f9;       /* 圖片中極極細微的灰色網格線 */
+    --locked-bg: #fff1f2;          /* 綁課儲存格：粉紅色底 */
     --locked-border: #fca5a5;
-    --locked-text: #991b1b;
+    --locked-text: #ef4444;
 }
 
 * {
@@ -95,8 +95,8 @@ body {
 .login-card, .query-card, .result-card {
     background: var(--card-bg);
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     width: 100%;
 }
 
@@ -284,21 +284,22 @@ body {
 
 .title-header-container {
     text-align: center;
-    margin: 15px 0 20px;
+    margin: 10px 0 20px;
 }
 
 .schedule-title {
-    font-size: 1.6rem;
-    color: #0f172a;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #1d4ed8;                 /* 圖片風格標題深藍色 */
 }
 
-/* ── 課表表格結構與響應式橫向滾動 ───────────────────────── */
+/* ── 課表表格結構與橫向滾動 ─────────────────────────────── */
 .table-responsive {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
 }
 
 .schedule-table {
@@ -311,17 +312,17 @@ body {
 
 .schedule-table th,
 .schedule-table td {
-    border: 1px solid var(--border-color);
-    padding: 8px 4px;
+    border: 1px solid #e2e8f0;     /* 清晰淺灰邊框 */
+    padding: 10px 4px;
     text-align: center;
     vertical-align: middle;
     box-sizing: border-box;
 }
 
 .schedule-table th {
-    background-color: #f8fafc;
-    font-weight: 600;
-    color: #475569;
+    background-color: #f1f5f9;     /* 表頭淡灰色背景 */
+    font-weight: 700;
+    color: #334155;
 }
 
 .th-period, .td-period {
@@ -331,34 +332,28 @@ body {
 
 .period-num {
     display: block;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.85rem;
+    color: #1e293b;
     line-height: 1.2;
 }
 
 .period-time {
     display: block;
     font-size: 0.7rem;
-    color: var(--text-dim);
+    color: #94a3b8;
     line-height: 1.15;
     margin-top: 2px;
 }
 
-/* ── 課表儲存格內部 (色彩優化) ──────────────────────────── */
+/* ── 課表儲存格與膠囊標籤（比照圖片配色） ───────────────── */
 .td-empty {
     background-color: #ffffff;
 }
 
-/* 有課程的儲存格背景與文字潤飾 */
 .td-cell {
     height: 100%;
-    background-color: #eff6ff;       /* 淡藍色底 */
-    border-color: #bfdbfe !important; /* 明亮輕柔的藍色邊框 */
-    transition: background-color 0.2s ease;
-}
-
-.td-cell:hover {
-    background-color: #dbeafe;       /* 滑鼠懸停時微加深 */
+    background-color: #ffffff;     /* 普通有課儲存格保持白底 */
 }
 
 .cell-main-info {
@@ -366,21 +361,18 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 }
 
 .cell-subject {
-    font-weight: 700;
+    font-weight: 800;
     font-size: 0.95rem;
     line-height: 1.25;
-    color: #1e3a8a;                  /* 深藍色科目名稱 */
+    color: #0f172a;                  /* 深黑色科目字體 */
 }
 
 .clickable-subject {
     cursor: pointer !important;
-    color: var(--primary-color);
-    text-decoration: underline;
-    text-underline-offset: 3px;
     transition: opacity 0.2s ease;
 }
 
@@ -395,39 +387,39 @@ body {
     justify-content: center;
 }
 
-/* 班級／教師連結標籤潤飾 */
+/* 完全擬真圖片中的淡天藍膠囊標籤 */
 .cell-link {
     display: inline-block;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #ffffff;
-    background-color: #3b82f6;       /* 主主題藍底 */
-    padding: 2px 8px;
-    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0284c7;                  /* 天藍色文字 */
+    background-color: #e0f2fe;       /* 淡天藍底色 */
+    padding: 3px 10px;
+    border-radius: 6px;              /* 圖片風格軟質矩形標籤 */
     cursor: pointer;
     transition: all 0.15s ease;
-    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
 }
 
 .cell-link:hover {
-    background-color: #2563eb;
-    transform: translateY(-1px);
+    background-color: #bae6fd;
+    color: #0369a1;
 }
 
-/* ── 綁課樣式 ───────────────────────────────────────────── */
+/* ── 綁課樣式（完全擬真圖片粉紅底與紅 Badge） ─────────── */
 .td-cell.cell-locked {
-    background-color: var(--locked-bg);
-    border-color: #fecaca !important;
+    background-color: #fff1f2 !important; /* 淡粉紅色背景 */
 }
 
 .lock-tag {
-    display: inline-block;
-    background-color: #ef4444;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background-color: #ef4444;       /* 鮮紅色底 */
     color: #ffffff;
-    font-size: 0.65rem;
-    padding: 1px 4px;
-    border-radius: 3px;
-    margin-left: 2px;
+    font-size: 0.68rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-left: 4px;
     font-weight: bold;
     vertical-align: middle;
 }
@@ -440,7 +432,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: 9999;
     align-items: center;
     justify-content: center;
@@ -454,16 +446,16 @@ body {
     background: #ffffff;
     width: 90%;
     max-width: 500px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     overflow: hidden;
     animation: modalFadeIn 0.2s ease-out;
 }
 
 .modal-header {
     padding: 1rem 1.25rem;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid var(--border-color);
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -472,8 +464,8 @@ body {
 .modal-header h3 {
     margin: 0;
     font-size: 1.1rem;
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: 700;
+    color: #0f172a;
 }
 
 .modal-close {
@@ -495,34 +487,34 @@ body {
 .btn-teacher-tag {
     padding: 6px 14px;
     border-radius: 20px;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.88rem;
     cursor: pointer;
     transition: all 0.2s ease;
     margin: 3px;
 }
 
-/* 1. 【原科目】空堂教師標籤（藍色） */
+/* 1. 【原科目】空堂教師標籤（與課表圖片一致天藍色） */
 .btn-primary-subject {
-    border: 1px solid var(--primary-color);
-    background-color: #eff6ff;
-    color: var(--primary-color);
+    border: 1px solid #7dd3fc;
+    background-color: #e0f2fe;
+    color: #0284c7;
 }
 
 .btn-primary-subject:hover {
-    background-color: var(--primary-color);
+    background-color: #0284c7;
     color: #ffffff;
 }
 
-/* 2. 【該班其他科目】空堂教師標籤（橘色） */
+/* 2. 【該班其他科目】空堂教師標籤（暖橘色以利區隔） */
 .btn-other-subject {
-    border: 1px solid var(--amber-color);
+    border: 1px solid #fde68a;
     background-color: #fffbe2;
-    color: var(--amber-color);
+    color: #d97706;
 }
 
 .btn-other-subject:hover {
-    background-color: var(--amber-color);
+    background-color: #d97706;
     color: #ffffff;
 }
 
@@ -614,7 +606,7 @@ body {
 
     .cell-link {
         font-size: 0.65rem !important;
-        padding: 1px 4px !important;
+        padding: 1px 3px !important;
         line-height: 1.1;
         margin-top: 2px;
     }
