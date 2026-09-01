@@ -582,3 +582,89 @@ body {
     font-size: 0.75rem;
     opacity: 0.85;
 }
+/* ═══════════════════════════════════════════════════════════
+    手機直式全版課表優化 (Mobile Portrait Mode)
+═══════════════════════════════════════════════════════════ */
+@media screen and (max-width: 600px) {
+    /* 1. 縮減外圍容器邊距，放大顯示區域 */
+    .container, #resultView {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* 2. 表格容器允許橫向滑動但預設貼合寬度 */
+    #scheduleTableContainer {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -4px;
+    }
+
+    /* 3. 強制表格採用固定佈局並使用 100% 寬度 */
+    .schedule-table {
+        width: 100% !important;
+        table-layout: fixed !important;
+        font-size: 0.75rem !important; /* 縮小文字大小以容納內容 */
+    }
+
+    /* 4. 微調第一欄（節次）寬度與 padding */
+    .schedule-table th,
+    .schedule-table td {
+        padding: 3px 1px !important;
+        word-break: break-all;
+    }
+
+    .th-period, .td-period {
+        width: 15% !important; /* 節次欄佔比 */
+    }
+    
+    .period-num {
+        font-size: 0.75rem !important;
+    }
+
+    .period-time {
+        font-size: 0.6rem !important;
+        transform: scale(0.9); /* 稍微縮小時間文字 */
+        line-height: 1.1;
+    }
+
+    /* 5. 優化星期欄位（週一～週五共 5 欄） */
+    .schedule-table th:not(.th-period) {
+        width: 17% !important;
+    }
+
+    /* 6. 調整課表儲存格內的文字與標籤 */
+    .cell-subject {
+        font-size: 0.8rem !important;
+        font-weight: bold;
+        line-height: 1.2;
+    }
+
+    .cell-link {
+        font-size: 0.7rem !important;
+        padding: 1px 0 !important;
+    }
+
+    /* 7. 綁課標籤彈性縮小，避免擠壓文字 */
+    .lock-tag {
+        font-size: 0.6rem !important;
+        padding: 0px 2px !important;
+        display: inline-block;
+        transform: scale(0.85);
+        margin-left: 0 !important;
+    }
+
+    /* 8. 上方按鈕區塊直向彈性排列 */
+    .btn-group, .action-buttons {
+        display: flex;
+        gap: 4px;
+        justify-content: space-between;
+    }
+
+    .btn-group .btn, .action-buttons .btn {
+        padding: 6px 8px !important;
+        font-size: 0.8rem !important;
+        flex: 1;
+    }
+}
