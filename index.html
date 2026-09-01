@@ -55,19 +55,19 @@
             <div id="panelClass" class="tab-panel">
                 <div class="query-grid">
                     <div class="form-group">
-                        <label>七年級</label>
+                        <label for="sel7">七年級</label>
                         <select id="sel7" class="form-control"><option value="">— 選擇班級 —</option></select>
                     </div>
                     <div class="form-group">
-                        <label>八年級</label>
+                        <label for="sel8">八年級</label>
                         <select id="sel8" class="form-control"><option value="">— 選擇班級 —</option></select>
                     </div>
                     <div class="form-group">
-                        <label>九年級</label>
+                        <label for="sel9">九年級</label>
                         <select id="sel9" class="form-control"><option value="">— 選擇班級 —</option></select>
                     </div>
                     <div class="form-group">
-                        <label>特殊班 / 其他</label>
+                        <label for="selSp">特殊班 / 其他</label>
                         <select id="selSp" class="form-control"><option value="">— 選擇班級 —</option></select>
                     </div>
                 </div>
@@ -79,13 +79,13 @@
             <div id="panelTeacher" class="tab-panel hidden">
                 <div class="query-grid-2">
                     <div class="form-group">
-                        <label>任教科目</label>
+                        <label for="subjectSelect">任教科目</label>
                         <select id="subjectSelect" class="form-control" onchange="onSubjectChange()">
                             <option value="">— 選擇科目 —</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>教師姓名</label>
+                        <label for="teacherSelect">教師姓名</label>
                         <select id="teacherSelect" class="form-control">
                             <option value="">— 選擇教師 —</option>
                         </select>
@@ -100,7 +100,6 @@
     <!-- ══ 3. 課表結果視圖 ══════════════════════════════════════ -->
     <div id="resultView" class="view-container">
         <div class="result-card">
-            
             <div class="action-bar">
                 <button id="backBtn" class="btn btn-secondary" onclick="goBack()">← 返回上一頁</button>
                 <div>
@@ -116,7 +115,6 @@
 
             <!-- 課表動態渲染容器 -->
             <div id="scheduleTableContainer" class="table-responsive"></div>
-
         </div>
     </div>
 
@@ -125,7 +123,7 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3 id="modalTitle">可代課教師名單</h3>
-                <span class="modal-close" onclick="closeSubModal()">&times;</span>
+                <button type="button" class="modal-close" onclick="closeSubModal()">&times;</button>
             </div>
             <div id="modalBody" class="modal-body">
                 <!-- 動態填入代課教師清單 -->
@@ -133,7 +131,6 @@
         </div>
     </div>
 
-    <!-- 引入 JavaScript 資源 (僅需引一次，放在 </body> 前) -->
     <script src="config.js"></script>
     <script src="app.js"></script>
 </body>
