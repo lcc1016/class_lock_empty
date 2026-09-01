@@ -1,10 +1,72 @@
 /**
  * ============================================================
- *  代課名單查詢邏輯 (同科目空堂 / 同班級任課教師空堂)
+ *  民雄國中課表查詢系統 - 核心邏輯 (app.js)
  * ============================================================
  */
 
-// 1. 取得「同科目」且「該節次空堂」的教師名單
+// ── 全域變數定義 ──────────────────────────────────────────────
+const DAYS = ['一', '二', '三', '四', '五'];
+let scheduleData = [];
+let subjectTeachers = {};
+
+// ── 工具函式 ─────────────────────────────────────────────────
+function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function normalizeSubject(subj) {
+    if (!subj) return '';
+    return subj.trim();
+}
+
+function showView(viewId) {
+    document.querySelectorAll('.view').forEach(el => {
+        el.classList.remove('active', 'result-active');
+        el.style.display = 'none';
+    });
+    const target = document.getElementById(viewId);
+    if (target) {
+        if (viewId === 'resultView') {
+            target.classList.add('result-active');
+        } else {
+            target.classList.add('active');
+        }
+        target.style.display = '';
+    }
+}
+
+// ── 學期選單初始化（解決登入頁面空白問題）────────────────────
+function populateSemesterSelect() {
+    const semesterSelect = document.getElementById('semesterSelect');
+    if (!semesterSelect) return;
+
+    semesterSelect.innerHTML = ''; // 清空原有選項
+
+    if (typeof CONFIG !== 'undefined' && CONFIG.SEMESTERS) {
+        Object.keys(CONFIG.SEMESTERS).forEach(sem => {
+            const opt = document.createElement('option');
+            opt.value = sem;
+            opt.textContent = sem;
+            semesterSelect.appendChild(opt);
+        });
+    }
+
+    // 防呆機制：若無設定則預設加入 115-1
+    if (semesterSelect.options.length === 0) {
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '115-1';
+        defaultOpt.textContent = '115-1';
+        semesterSelect.appendChild(defaultOpt);
+    }
+}
+
+// ── 代課名單查詢邏輯 (同科目空堂 / 同班級任課教師空堂) ─────────
 function getSameSubjectFreeTeachers(subject, day, period) {
     if (!subject) return [];
     const baseSubj = normalizeSubject(subject);
@@ -18,12 +80,10 @@ function getSameSubjectFreeTeachers(subject, day, period) {
     });
 }
 
-// 2. 取得「同班級其他任課教師」且「該節次空堂」的名單
 function getClassFreeTeachers(className, day, period) {
     if (!className) return [];
-    const PERIODS = [0,1,2,3,4,5,6,7,8,9];
-    
-    // 找出有教該班級的所有教師
+    const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
     const classTeachers = new Set();
     scheduleData.forEach(row => {
         for (let d = 1; d <= 5; d++) {
@@ -36,7 +96,6 @@ function getClassFreeTeachers(className, day, period) {
         }
     });
 
-    // 篩選出該節次沒有課的教師
     return [...classTeachers].filter(tName => {
         const row = scheduleData.find(r => r.teachername === tName);
         if (!row) return false;
@@ -45,14 +104,9 @@ function getClassFreeTeachers(className, day, period) {
     }).sort();
 }
 
-/**
- * ============================================================
- *  課表表格渲染 (含左右選單)
- * ============================================================
- */
-
+// ── 課表表格繪製與渲染 ─────────────────────────────────────────
 function buildScheduleTable(cells, mode, currentTargetName) {
-    const periods  = (typeof CONFIG !== 'undefined' && CONFIG.PERIOD_TIMES) || [];
+    const periods = (typeof CONFIG !== 'undefined' && CONFIG.PERIOD_TIMES) || [];
     const hasEarly = Object.keys(cells).some(k => k.endsWith('-0'));
 
     let html = '<table class="schedule-table"><thead><tr>';
@@ -94,31 +148,31 @@ function renderCell(cell, mode, day, period, currentTargetName) {
 
     const itemsHtml = (cell.items || []).map(item => {
         if (mode === 'class') {
-            return `<div class="cell-link" onclick="displayTeacherSchedule('${escHtml(item)}')">${item}</div>`;
+            return `<div class="cell-link" onclick="displayTeacherSchedule('${escHtml(item)}')">${escHtml(item)}</div>`;
         } else {
-            return `<div class="cell-link" onclick="displayClassSchedule('${escHtml(item)}')">${item}</div>`;
+            return `<div class="cell-link" onclick="displayClassSchedule('${escHtml(item)}')">${escHtml(item)}</div>`;
         }
     }).join(' ');
 
     const lockBadge = cell.isLocked ? `<span class="lock-tag" title="此課程已綁定，不可調課">🔒 綁課</span>` : '';
     const cellClass = cell.isLocked ? 'td-cell cell-locked' : 'td-cell';
 
-    // ── 建立左框：同科目空堂教師 ──
+    // ── 左框：同科目空堂教師 ──
     const sameSubjFree = getSameSubjectFreeTeachers(cell.subject, day, period);
     let leftSelect = `<select class="sub-select left-select" onchange="if(this.value) displayTeacherSchedule(this.value)" title="同科目空堂代課教師">
         <option value="">代(科)</option>`;
     sameSubjFree.forEach(t => {
-        leftSelect += `<option value="${escHtml(t)}">${t}</option>`;
+        leftSelect += `<option value="${escHtml(t)}">${escHtml(t)}</option>`;
     });
     leftSelect += `</select>`;
 
-    // ── 建立右框：同班級其他任課教師空堂 ──
+    // ── 右框：同班級其他任課教師空堂 ──
     const targetClass = mode === 'class' ? currentTargetName : (cell.items[0] || '');
     const classFree = getClassFreeTeachers(targetClass, day, period);
     let rightSelect = `<select class="sub-select right-select" onchange="if(this.value) displayTeacherSchedule(this.value)" title="同班級任課教師空堂代課">
         <option value="">代(班)</option>`;
     classFree.forEach(t => {
-        rightSelect += `<option value="${escHtml(t)}">${t}</option>`;
+        rightSelect += `<option value="${escHtml(t)}">${escHtml(t)}</option>`;
     });
     rightSelect += `</select>`;
 
@@ -126,7 +180,7 @@ function renderCell(cell, mode, day, period, currentTargetName) {
         <div class="cell-wrapper">
             ${leftSelect}
             <div class="cell-content">
-                <div class="cell-subject">${cell.subject} ${lockBadge}</div>
+                <div class="cell-subject">${escHtml(cell.subject)} ${lockBadge}</div>
                 <div class="cell-items-container">${itemsHtml}</div>
             </div>
             ${rightSelect}
@@ -134,9 +188,15 @@ function renderCell(cell, mode, day, period, currentTargetName) {
     </td>`;
 }
 
-// 📌 記得修改 displayClassSchedule 與 displayTeacherSchedule 中的呼叫傳參：
-// 在 displayClassSchedule 結尾改為：
-// scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'class', className);
+// ── 頁面初始化載入 ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    // 設置網頁 Title
+    const schoolName = (typeof CONFIG !== 'undefined' && CONFIG.SCHOOL_NAME) ? CONFIG.SCHOOL_NAME : '民雄國中';
+    document.title = `${schoolName} 課表查詢`;
 
-// 在 displayTeacherSchedule 結尾改為：
-// scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'teacher', teacherName);
+    // 載入學期選項
+    populateSemesterSelect();
+
+    // 顯示登入畫面
+    showView('loginView');
+});
