@@ -504,96 +504,81 @@ body {
     }
 }
 
-
-/* ═══════════════════════════════════════════════════════════
-    手機直式課表：固定每欄 6ch 寬度 (全版自動換列)
-═══════════════════════════════════════════════════════════ */
-@media screen and (max-width: 600px) {
-    /* 1. 外層容器壓至極致，確保不浪費左右螢幕邊界 */
-    .container, #resultView, .card {
-        padding-left: 1px !important;
-        padding-right: 1px !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
+/* ── 行動裝置 RWD (Mobile < 768px) ─────────────────────── */
+@media (max-width: 768px) {
+    body {
+        padding: 8px;
     }
 
-    /* 2. 表格容器壓滿 100%，關閉橫向滾動條 */
-    #scheduleTableContainer {
-        width: 100% !important;
-        overflow-x: hidden !important;
-        padding: 0 !important;
-        margin: 0 !important;
+    .login-card, .query-card, .result-card {
+        padding: 18px;
     }
 
-    /* 3. 表格採用固定版面 */
-    .schedule-table {
-        width: 100% !important;
-        max-width: 100% !important;
-        table-layout: fixed !important;
-        border-collapse: collapse !important;
+    .th-period, .td-period {
+        width: 55px;
     }
 
-    /* 4. 關鍵：設定 6 個欄位寬度皆為 6ch */
-    .schedule-table th,
-    .schedule-table td {
-        width: 6ch !important;
-        max-width: 6ch !important;
-        padding: 3px 0 !important;
-        box-sizing: border-box !important;
-        vertical-align: middle !important;
-    }
-
-    /* 5. 強制文字自動換列與對齊 */
-    .schedule-table th,
-    .schedule-table td,
-    .cell-subject,
-    .cell-link,
-    .period-num,
-    .period-time {
-        white-space: normal !important;
-        word-break: break-all !important;
-        overflow-wrap: break-word !important;
-        text-align: center !important;
-    }
-
-    /* 6. 節次欄位樣式調整 */
     .period-num {
-        font-size: 0.7rem !important;
-        font-weight: bold;
-        line-height: 1.1;
+        font-size: 0.78rem;
     }
 
     .period-time {
-        font-size: 0.5rem !important;
-        color: #666;
-        line-height: 1.0;
-        margin-top: 1px;
+        font-size: 0.65rem;
     }
 
-    /* 7. 科目與教師名稱字體調整 */
     .cell-subject {
-        font-size: 0.72rem !important;
-        font-weight: bold;
-        line-height: 1.15;
+        font-size: 0.85rem;
     }
 
     .cell-link {
-        font-size: 0.65rem !important;
-        color: #333;
-        line-height: 1.1;
-        margin-top: 2px;
+        font-size: 0.72rem;
+        padding: 1px 4px;
     }
 
-    /* 8. 綁課標籤換行顯示 */
-    .lock-tag {
-        display: block !important;
-        font-size: 0.5rem !important;
-        padding: 0px 1px !important;
-        margin: 2px auto 0 auto !important;
-        width: fit-content;
-        line-height: 1.0;
+    .schedule-title {
+        font-size: 1.3rem;
     }
+}
+/* ── Modal 內不同科目的代課教師顏色區分 ─────────────────── */
+.sub-group-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.no-teacher-msg {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 4px 0 12px 12px;
+}
+
+/* 主科目標籤（藍色） */
+.btn-teacher-tag.btn-primary-subject {
+    border-color: var(--primary-color);
+    background-color: #eff6ff;
+    color: var(--primary-color);
+}
+
+.btn-teacher-tag.btn-primary-subject:hover {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+/* 該班其他科目標籤（綠色） */
+.btn-teacher-tag.btn-other-subject {
+    border-color: #10b981;
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.btn-teacher-tag.btn-other-subject:hover {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.teacher-subj-badge {
+    font-size: 0.75rem;
+    opacity: 0.85;
 }
