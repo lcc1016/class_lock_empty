@@ -323,3 +323,118 @@ body {
         padding: 0 2px;
     }
 }
+/* ═══════════════════════════════════════════════════════════
+   科目點擊與彈出視窗 (Modal) 樣式修復
+═══════════════════════════════════════════════════════════ */
+
+/* 1. 讓課表內的科目呈現可點擊狀態 */
+.clickable-subject {
+    cursor: pointer !important;
+    color: var(--primary-color, #1a73e8);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.2s ease;
+}
+
+.clickable-subject:hover {
+    opacity: 0.75;
+}
+
+/* 2. 彈出視窗 (Modal) 遮罩與佈局 */
+.modal-overlay, 
+#subModal {
+    display: none; /* 預設隱藏 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* 背景半透明黑 */
+    z-index: 9999; /* 確保浮在最上層 */
+    justify-content: center;
+    align-items: center;
+}
+
+/* 當 JS 加載 .show 或變更 display 時顯示 */
+#subModal.show {
+    display: flex !important;
+}
+
+/* 3. Modal 主體白框 */
+.modal-content {
+    background: #ffffff;
+    width: 90%;
+    max-width: 480px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: modalFadeIn 0.25s ease-out;
+}
+
+/* Modal 標題區 */
+.modal-header {
+    padding: 1rem 1.25rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+}
+
+/* Modal 內容區與教師按鈕 */
+.modal-body {
+    padding: 1.25rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.teacher-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-teacher-tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #1a73e8;
+    background-color: #f0f7ff;
+    color: #1a73e8;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-teacher-tag:hover {
+    background-color: #1a73e8;
+    color: #ffffff;
+}
+
+/* 動畫效果 */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
