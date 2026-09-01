@@ -602,15 +602,15 @@ body {
 
     /* 第一欄：節次＋時間（高度壓縮寬度） */
     .th-period, .td-period {
-        width: 4.5ch !important;
-        max-width: 4.5ch !important;
+        width: 3ch !important;
+        max-width: 3ch !important;
         padding: 2px 0 !important;
     }
 
     /* 星期一～星期五五個欄位（平均分配剩餘寬度） */
     .schedule-table th:not(.th-period),
     .schedule-table td:not(.td-period) {
-        width: calc((100% - 4.5ch) / 5) !important;
+        width: calc((100% - 3ch) / 5) !important;
         padding: 2px 0 !important;
     }
 
