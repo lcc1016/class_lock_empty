@@ -30,7 +30,26 @@ body {
     padding: 15px;
 }
 
-/* 強制隱藏不需要的下拉選單容器 */
+/* ── 修正 1：隱藏「資料載入中...」覆蓋層（只有 JS 加入 .show 時才顯示） ── */
+#loadingOverlay, .loading-overlay {
+    display: none !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+#loadingOverlay.show, .loading-overlay.show {
+    display: flex !important;
+}
+
+/* ── 強制隱藏不必要的舊元件 ───────────────────────────────── */
 #leftSelectContainer, #rightSelectContainer {
     display: none !important;
 }
@@ -209,26 +228,26 @@ body {
     vertical-align: middle;
 }
 
-/* ── 彈出視窗 (Modal) 關鍵修正 ────────────────────────────── */
-.modal {
-    display: none; /* 預設隱藏，點擊科目後由 JS 切換為 display: flex */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 9999; /* 確保浮在頁面最上層 */
+/* ── 修正 2：彈出視窗 Modal（涵蓋 #subModal / #modal / .modal） ── */
+#subModal, #modal, .modal, .modal-backdrop {
+    display: none !important; /* 預設完全隱藏，不佔據頁面版面 */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 99999 !important; /* 確保浮於最上層 */
 }
 
 .modal-content {
     background: #ffffff;
-    padding: 24px;
+    padding: 20px;
     border-radius: 12px;
     width: 90%;
-    max-width: 480px;
+    max-width: 450px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
     position: relative;
 }
