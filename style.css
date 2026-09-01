@@ -13,7 +13,7 @@
     --card-bg: #ffffff;
     --text-color: #1f2937;
     --text-dim: #6b7280;
-    --border-color: #f1f5f9;       /* 極細微灰色網格線 */
+    --border-color: #e2e8f0;       /* 淺灰邊框 */
     --locked-bg: #fff1f2;          /* 綁課儲存格：粉紅色底 */
     --locked-border: #fca5a5;
     --locked-text: #ef4444;
@@ -299,7 +299,7 @@ body {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
 }
 
 .schedule-table {
@@ -312,7 +312,7 @@ body {
 
 .schedule-table th,
 .schedule-table td {
-    border: 1px solid #e2e8f0;     /* 淺灰邊框 */
+    border: 1px solid var(--border-color);
     padding: 10px 4px;
     text-align: center;
     vertical-align: middle;
@@ -361,14 +361,14 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 }
 
 .cell-subject {
     font-weight: 800;
     font-size: 0.95rem;
     line-height: 1.25;
-    color: #0f172a;                  /* 深色科目名稱 */
+    color: #0f172a;                  /* 深黑色科目字體 */
 }
 
 .clickable-subject {
@@ -383,28 +383,26 @@ body {
 .cell-items-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
     justify-content: center;
 }
 
-/* 教師名稱 / 班級名稱（已取消膠囊底色，調整為簡潔純文字樣式） */
+/* 教師名字 / 班級名稱（淺色藍方塊底、深藍色字體） */
 .cell-link {
     display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #475569;                  /* 質感深灰色 */
-    background: none;                 /* 移除底色 */
-    background-color: transparent;    /* 移除膠囊背景 */
-    padding: 0;                       /* 移除內距 */
-    border-radius: 0;                 /* 移除圓角 */
-    box-shadow: none;                 /* 移除陰影 */
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0284c7;                  /* 深天藍色文字 */
+    background-color: #e0f2fe;       /* 淺天藍色背景方塊 */
+    padding: 3px 8px;
+    border-radius: 6px;              /* 圓角方塊 */
     cursor: pointer;
-    transition: color 0.15s ease;
+    transition: all 0.15s ease;
 }
 
 .cell-link:hover {
-    color: var(--primary-color);      /* 滑鼠懸停時轉為主題藍 */
-    text-decoration: underline;       /* 加底線以提示可點擊 */
+    background-color: #bae6fd;
+    color: #0369a1;
 }
 
 /* ── 綁課樣式 ───────────────────────────────────────────── */
@@ -496,7 +494,7 @@ body {
     margin: 3px;
 }
 
-/* 1. 【原科目】空堂教師標籤（天藍色） */
+/* 1. 【原科目】空堂教師標籤（淺天藍底深字） */
 .btn-primary-subject {
     border: 1px solid #7dd3fc;
     background-color: #e0f2fe;
@@ -508,7 +506,7 @@ body {
     color: #ffffff;
 }
 
-/* 2. 【該班其他科目】空堂教師標籤（暖橘色） */
+/* 2. 【該班其他科目】空堂教師標籤（暖橘色以利區隔） */
 .btn-other-subject {
     border: 1px solid #fde68a;
     background-color: #fffbe2;
@@ -608,7 +606,7 @@ body {
 
     .cell-link {
         font-size: 0.65rem !important;
-        padding: 0 !important;
+        padding: 1px 3px !important;
         line-height: 1.1;
         margin-top: 2px;
     }
