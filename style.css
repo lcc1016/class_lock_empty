@@ -30,6 +30,11 @@ body {
     padding: 15px;
 }
 
+/* 強制隱藏不需要的下拉選單容器 */
+#leftSelectContainer, #rightSelectContainer {
+    display: none !important;
+}
+
 /* ── 容器與版面配置 ───────────────────────────────────────── */
 .container {
     max-width: 1000px;
@@ -74,21 +79,21 @@ body {
     color: #ffffff;
 }
 
-/* ── 表格容器與響應式橫向滾動（關鍵修正 1） ─────────────────── */
+/* ── 表格容器與響應式橫向滾動 ─────────────────────────────── */
 #scheduleTableContainer {
     width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* 手機滑動加速 */
+    -webkit-overflow-scrolling: touch;
     margin-top: 15px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
 }
 
-/* ── 課表主結構與文字換行設定（關鍵修正 2） ─────────────────── */
+/* ── 課表主結構與文字換行設定 ─────────────────────────────── */
 .schedule-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* 固定欄寬演算法，防止文字擠壓推開表格 */
+    table-layout: fixed;
     background-color: #ffffff;
 }
 
@@ -99,8 +104,8 @@ body {
     text-align: center;
     vertical-align: middle;
     overflow: hidden;
-    word-break: break-all;     /* 強制長文字/中文換行，絕不破版 */
-    white-space: normal;       /* 允許內容自動折行 */
+    word-break: break-all;
+    white-space: normal;
     box-sizing: border-box;
 }
 
@@ -110,15 +115,15 @@ body {
     color: #475569;
 }
 
-/* ── 左側「節次欄位」重疊修復（關鍵修正 3） ─────────────────── */
+/* ── 左側「節次欄位」重疊修復 ─────────────────────────────── */
 .th-period {
-    width: 65px; /* 給予節次固定寬度 */
+    width: 65px;
 }
 
 .td-period {
     width: 65px;
     background-color: #f8fafc;
-    white-space: nowrap; /* 防止節次名稱被硬切 */
+    white-space: nowrap;
 }
 
 .period-num {
@@ -204,27 +209,43 @@ body {
     vertical-align: middle;
 }
 
-/* ── 彈出視窗 (Modal) ────────────────────────────────────── */
-.modal-backdrop {
+/* ── 彈出視窗 (Modal) 關鍵修正 ────────────────────────────── */
+.modal {
+    display: none; /* 預設隱藏，點擊科目後由 JS 切換為 display: flex */
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999; /* 確保浮在頁面最上層 */
 }
 
 .modal-content {
     background: #ffffff;
-    padding: 20px;
+    padding: 24px;
     border-radius: 12px;
     width: 90%;
-    max-width: 450px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    max-width: 480px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.modal-close {
+    font-size: 1.5rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #6b7280;
 }
 
 .teacher-grid {
@@ -252,14 +273,13 @@ body {
         border-radius: 8px;
     }
 
-    /* 縮小手機版表格內字級與邊距，預防字體過大 */
     .schedule-table th, 
     .schedule-table td {
         padding: 4px 2px;
     }
 
     .th-period, .td-period {
-        width: 50px; /* 手機端微縮節次欄寬 */
+        width: 50px;
     }
 
     .period-num {

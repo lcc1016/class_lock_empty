@@ -494,11 +494,6 @@ function displayClassSchedule(className) {
     if (scheduleTitle) scheduleTitle.innerHTML = `${className} 班課表 ${hmHtml}`;
     if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'class');
 
-    const leftContainer = document.getElementById('leftSelectContainer');
-    const rightContainer = document.getElementById('rightSelectContainer');
-    if (leftContainer) leftContainer.style.visibility = 'visible';
-    if (rightContainer) rightContainer.style.visibility = 'visible';
-
     showView('resultView');
     updateBackBtn();
 }
@@ -524,11 +519,6 @@ function displayTeacherSchedule(teacherName) {
     }
     if (scheduleTitle) scheduleTitle.textContent = `${teacherName} 老師課表`;
     if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'teacher');
-
-    const leftContainer = document.getElementById('leftSelectContainer');
-    const rightContainer = document.getElementById('rightSelectContainer');
-    if (leftContainer) leftContainer.style.visibility = 'hidden';
-    if (rightContainer) rightContainer.style.visibility = 'hidden';
 
     showView('resultView');
     updateBackBtn();
