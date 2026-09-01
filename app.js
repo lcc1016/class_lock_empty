@@ -63,7 +63,7 @@ function logout() {
     homeroomData = {};
     lockedData   = {};
     navHistory   = [];
-    const errEl  = document.getElementById('loginError');
+    const errEl   = document.getElementById('loginError');
     if (errEl) errEl.textContent = '';
     showView('loginView');
 }
@@ -456,7 +456,7 @@ function displayClassSchedule(className) {
     const hmHtml = hmTeacher ? `<span style="font-size: 1.1rem; color: var(--text-dim, #666); margin-left: 0.5rem; font-weight: 500;">(導師：${escHtml(hmTeacher)})</span>` : '';
     
     if (scheduleTitle) scheduleTitle.innerHTML = `${className} 班課表 ${hmHtml}`;
-    if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'class');
+    if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'class', className);
 
     showView('resultView');
     updateBackBtn();
@@ -491,7 +491,7 @@ function displayTeacherSchedule(teacherName) {
 /* ═══════════════════════════════════════════════════════════
     建構課表 HTML
 ═══════════════════════════════════════════════════════════ */
-function buildScheduleTable(cells, mode) {
+function buildScheduleTable(cells, mode, currentClassName = '') {
     const periods   = (typeof CONFIG !== 'undefined' && CONFIG.PERIOD_TIMES) || [];
     const hasEarly  = Object.keys(cells).some(k => k.endsWith('-0'));
 
@@ -507,7 +507,7 @@ function buildScheduleTable(cells, mode) {
             <div class="period-time">${et.start}<br>${et.end}</div>
         </td>`;
         for (let d = 1; d <= 5; d++) {
-            html += renderCell(cells[`${d}-0`], mode, d, 0);
+            html += renderCell(cells[`${d}-0`], mode, d, 0, currentClassName);
         }
         html += '</tr>';
     }
@@ -520,7 +520,7 @@ function buildScheduleTable(cells, mode) {
         }
         html += '</td>';
         for (let d = 1; d <= 5; d++) {
-            html += renderCell(cells[`${d}-${p}`], mode, d, p);
+            html += renderCell(cells[`${d}-${p}`], mode, d, p, currentClassName);
         }
         html += '</tr>';
     }
@@ -529,7 +529,7 @@ function buildScheduleTable(cells, mode) {
     return html;
 }
 
-function renderCell(cell, mode, day, period) {
+function renderCell(cell, mode, day, period, currentClassName = '') {
     if (!cell) return '<td class="td-empty"></td>';
     
     // 教師/班級連結
@@ -546,7 +546,7 @@ function renderCell(cell, mode, day, period) {
 
     let subjHtml = `<div class="cell-subject">${cell.subject} ${lockBadge}</div>`;
     if (mode === 'class') {
-        const subjClick = `onclick="showAvailableTeachers('${escHtml(cell.subject)}', ${day}, ${period})"`;
+        const subjClick = `onclick="showAvailableTeachers('${escHtml(cell.subject)}', ${day}, ${period}, '${escHtml(currentClassName)}')"`
         subjHtml = `<div class="cell-subject clickable-subject" ${subjClick} title="點擊檢視該節空堂教師">${cell.subject} ${lockBadge}</div>`;
     }
 
@@ -559,18 +559,46 @@ function renderCell(cell, mode, day, period) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-    彈出視窗（Modal）邏輯：查詢該節空堂之同科教師
+    彈出視窗（Modal）邏輯：查詢該節空堂教師（含同科與該班其他科目）
 ═══════════════════════════════════════════════════════════ */
-function showAvailableTeachers(subject, day, period) {
+function showAvailableTeachers(subject, day, period, className) {
     const baseSubject = normalizeSubject(subject);
-    const teachersOfSubj = subjectTeachers[baseSubject] || [];
     
-    // 過濾出在該 day/period 沒有課的教師
-    const freeTeachers = teachersOfSubj.filter(teacher => {
+    // 1. 找出當前點擊科目的空堂教師 (主要)
+    const primaryTeachers = (subjectTeachers[baseSubject] || []).filter(teacher => {
         const row = scheduleData.find(r => r.teachername === teacher);
-        if (!row) return false;
-        return !row[`s${day}${period}`]; // 沒有課即為空堂
+        return row && !row[`s${day}${period}`];
     });
+
+    // 2. 找出該班級「所有其他科目」在當節課空堂的任課教師
+    const otherTeachersMap = new Map(); // key: 教師姓名, value: 科目名稱 Set
+    
+    if (className) {
+        scheduleData.forEach(row => {
+            for (let d = 1; d <= 5; d++) {
+                for (let p of PERIODS_ALL) {
+                    const classRaw = row[`c${d}${p}`] || '';
+                    const classes = classRaw.split(/[\s/]+/);
+                    
+                    if (classes.includes(className)) {
+                        const subj = row[`s${d}${p}`];
+                        const normSubj = normalizeSubject(subj);
+                        
+                        // 排除當前科目，且排除已經是主要科目的教師
+                        if (normSubj && normSubj !== baseSubject && !primaryTeachers.includes(row.teachername)) {
+                            // 檢查該教師在該 day/period 是否為空堂
+                            if (!row[`s${day}${period}`]) {
+                                if (!otherTeachersMap.has(row.teachername)) {
+                                    otherTeachersMap.set(row.teachername, new Set());
+                                }
+                                otherTeachersMap.get(row.teachername).add(normSubj);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     const periodText = period === 0 ? '早自習' : `第 ${period} 節`;
     const dayText = DAYS[day - 1] || day;
@@ -580,20 +608,38 @@ function showAvailableTeachers(subject, day, period) {
     const modal = document.getElementById('subModal');
 
     if (modalTitle) {
-        modalTitle.textContent = `星期${dayText}${periodText}【${baseSubject}】可代課教師`;
+        modalTitle.textContent = `星期${dayText}${periodText} 可代課教師`;
     }
 
     if (modalBody) {
-        if (freeTeachers.length === 0) {
-            modalBody.innerHTML = `<p style="text-align:center; color:#888; margin:1rem 0;">該時段無空堂的【${baseSubject}】教師。</p>`;
+        let html = '';
+
+        // 分組 1：同科目空堂教師 (藍色系)
+        html += `<div class="sub-group-title">【${baseSubject}】科空堂教師：</div>`;
+        if (primaryTeachers.length === 0) {
+            html += `<p class="no-teacher-msg">無同科空堂教師</p>`;
         } else {
-            let listHtml = '<div class="teacher-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:10px 0;">';
-            freeTeachers.forEach(t => {
-                listHtml += `<button class="btn btn-outline-primary btn-teacher-tag" onclick="selectModalTeacher('${escHtml(t)}')">${t}</button>`;
+            html += '<div class="teacher-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:12px;">';
+            primaryTeachers.forEach(t => {
+                html += `<button class="btn btn-teacher-tag btn-primary-subject" onclick="selectModalTeacher('${escHtml(t)}')">${t}</button>`;
             });
-            listHtml += '</div>';
-            modalBody.innerHTML = listHtml;
+            html += '</div>';
         }
+
+        // 分組 2：該班其他科目空堂教師 (綠色系)
+        html += `<div class="sub-group-title mt-3">該班其他科目空堂教師：</div>`;
+        if (otherTeachersMap.size === 0) {
+            html += `<p class="no-teacher-msg">無其他科目空堂教師</p>`;
+        } else {
+            html += '<div class="teacher-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">';
+            otherTeachersMap.forEach((subjs, t) => {
+                const subjTags = Array.from(subjs).join('、');
+                html += `<button class="btn btn-teacher-tag btn-other-subject" onclick="selectModalTeacher('${escHtml(t)}')" title="${subjTags}">${t} <span class="teacher-subj-badge">(${subjTags})</span></button>`;
+            });
+            html += '</div>';
+        }
+
+        modalBody.innerHTML = html;
     }
 
     if (modal) {
