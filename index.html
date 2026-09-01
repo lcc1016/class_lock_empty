@@ -54,23 +54,30 @@
             <!-- 班級查詢 Tab -->
             <div id="panelClass" class="tab-panel">
                 <div class="query-grid">
-                    <div class="form-group">
-                        <label for="sel7">七年級</label>
-                        <select id="sel7" class="form-control"><option value="">— 選擇班級 —</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="sel8">八年級</label>
-                        <select id="sel8" class="form-control"><option value="">— 選擇班級 —</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="sel9">九年級</label>
-                        <select id="sel9" class="form-control"><option value="">— 選擇班級 —</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="selSp">特殊班 / 其他</label>
-                        <select id="selSp" class="form-control"><option value="">— 選擇班級 —</option></select>
-                    </div>
-                </div>
+    <!-- 七年級 -->
+    <div class="form-group">
+        <label class="grade-label grade-7">七年級</label>
+        <select class="form-control" id="selectGrade7">...</select>
+    </div>
+
+    <!-- 八年級 -->
+    <div class="form-group">
+        <label class="grade-label grade-8">八年級</label>
+        <select class="form-control" id="selectGrade8">...</select>
+    </div>
+
+    <!-- 九年級 -->
+    <div class="form-group">
+        <label class="grade-label grade-9">九年級</label>
+        <select class="form-control" id="selectGrade9">...</select>
+    </div>
+
+    <!-- 特殊班 / 其他 -->
+    <div class="form-group">
+        <label class="grade-label grade-special">特殊班 / 其他</label>
+        <select class="form-control" id="selectGradeSpecial">...</select>
+    </div>
+</div>
                 <div id="classError" class="error-msg"></div>
                 <button class="btn btn-primary btn-block mt-3" onclick="submitClassQuery()">查詢班級課表</button>
             </div>
