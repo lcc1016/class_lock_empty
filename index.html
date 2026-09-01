@@ -35,7 +35,7 @@
 <body>
 
     <!-- Loading Overlay -->
-    <div id="loadingOverlay">
+    <div id="loadingOverlay" style="display: none;">
         <div class="big-spinner"></div>
         <p>正在載入課表資料，請稍候⋯</p>
     </div>
@@ -54,10 +54,10 @@
                     <select id="semesterSelect" class="form-control"></select>
                 </div>
                 
-                <div id="loginError" class="alert alert-danger" role="alert"></div>
+                <div id="loginError" class="alert alert-danger" role="alert" style="display: none;"></div>
                 
                 <button type="submit" id="loginBtn" class="btn btn-primary btn-block" style="margin-top:1.25rem">
-                    <span id="loginSpinner" class="spinner"></span>
+                    <span id="loginSpinner" class="spinner" style="display: none;"></span>
                     登入查詢
                 </button>
             </form>
@@ -65,7 +65,7 @@
     </div>
 
     <!-- ══ 2. 查詢視圖 ══════════════════════════════════════ -->
-    <div id="queryView" class="view">
+    <div id="queryView" class="view" style="display: none;">
         <div class="glass-card query-card">
 
             <!-- 標題列 -->
@@ -113,14 +113,14 @@
                         <option value="">— 選擇班級 —</option>
                     </select>
                 </div>
-                <div id="classError" class="alert alert-warning"></div>
+                <div id="classError" class="alert alert-warning" style="display: none;"></div>
                 <button class="btn btn-success btn-block" style="margin-top:1rem" onclick="submitClassQuery()">
                     查 詢
                 </button>
             </div>
 
             <!-- 教師查詢 -->
-            <div id="panelTeacher" class="tab-panel hidden">
+            <div id="panelTeacher" class="tab-panel hidden" style="display: none;">
                 <div class="form-group">
                     <label for="subjectSelect">科目</label>
                     <select id="subjectSelect" class="form-control" onchange="onSubjectChange()">
@@ -133,7 +133,7 @@
                         <option value="">— 請先選擇科目 —</option>
                     </select>
                 </div>
-                <div id="teacherError" class="alert alert-warning"></div>
+                <div id="teacherError" class="alert alert-warning" style="display: none;"></div>
                 <button class="btn btn-success btn-block" style="margin-top:1rem" onclick="submitTeacherQuery()">
                     查 詢
                 </button>
@@ -143,7 +143,7 @@
     </div>
 
     <!-- ══ 3. 結果視圖 ══════════════════════════════════════ -->
-    <div id="resultView" class="view">
+    <div id="resultView" class="view" style="display: none;">
         <div class="result-inner">
 
             <!-- 操作列 -->
@@ -174,12 +174,24 @@
         </div>
     </div>
 
+    <!-- 載入配置與主程式 -->
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script>
-        document.title = CONFIG.SCHOOL_NAME + ' 課表查詢';
-        document.getElementById('schoolName').textContent    = CONFIG.SCHOOL_NAME;
-        document.getElementById('schoolSubtitle').textContent = CONFIG.SCHOOL_SUBTITLE;
+        // 加入防呆安全檢查，確保 CONFIG 存在時才寫入文字
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof CONFIG !== 'undefined') {
+                if (CONFIG.SCHOOL_NAME) {
+                    document.title = CONFIG.SCHOOL_NAME + ' 課表查詢';
+                    const elName = document.getElementById('schoolName');
+                    if (elName) elName.textContent = CONFIG.SCHOOL_NAME;
+                }
+                if (CONFIG.SCHOOL_SUBTITLE) {
+                    const elSub = document.getElementById('schoolSubtitle');
+                    if (elSub) elSub.textContent = CONFIG.SCHOOL_SUBTITLE;
+                }
+            }
+        });
     </script>
 </body>
 </html>
