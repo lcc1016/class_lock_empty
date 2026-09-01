@@ -627,13 +627,13 @@ body {
     }
 
     .period-num {
-        font-size: 0.78rem !important;
+        font-size: 0.76rem !important;
         font-weight: bold;
-        line-height: 1.0;
+        line-height: 1.2;
     }
 
     .period-time {
-        font-size: 0.58rem !important;
+        font-size: 0.6rem !important;
         color: #64748b;
         line-height: 0.95;
         margin-top: 1px;
