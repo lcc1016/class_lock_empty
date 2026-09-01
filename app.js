@@ -18,9 +18,9 @@ const PERIODS_ALL   = [0,1,2,3,4,5,6,7,8];  // 0=早自習, 1~8=第1~8節
 const DAYS          = ['一','二','三','四','五'];
 
 /* ── DOM 參考 ─────────────────────────────────────────────── */
-const loginView    = document.getElementById('loginView');
-const queryView    = document.getElementById('queryView');
-const resultView   = document.getElementById('resultView');
+const loginView   = document.getElementById('loginView');
+const queryView   = document.getElementById('queryView');
+const resultView  = document.getElementById('resultView');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const scheduleTitle  = document.getElementById('scheduleTitle');
 const scheduleTableContainer = document.getElementById('scheduleTableContainer');
@@ -623,7 +623,7 @@ function showAvailableTeachers(subject, day, period) {
         if (freeTeachers.length === 0) {
             modalBody.innerHTML = `<p style="text-align:center; color:#888; margin:1rem 0;">該時段無空堂的【${baseSubject}】教師。</p>`;
         } else {
-            let listHtml = '<div class="teacher-grid">';
+            let listHtml = '<div class="teacher-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:10px 0;">';
             freeTeachers.forEach(t => {
                 listHtml += `<button class="btn btn-outline-primary btn-teacher-tag" onclick="selectModalTeacher('${escHtml(t)}')">${t}</button>`;
             });
@@ -633,6 +633,7 @@ function showAvailableTeachers(subject, day, period) {
     }
 
     if (modal) {
+        modal.classList.add('show');
         modal.style.display = 'flex';
     }
 }
@@ -643,9 +644,12 @@ function selectModalTeacher(teacherName) {
 }
 
 function closeSubModal(event) {
-    if (!event || event.target.id === 'subModal' || event.target.classList.contains('modal-close')) {
+    if (!event || event.target.id === 'subModal' || event.target.classList.contains('modal-close') || event.target.closest('.modal-close')) {
         const modal = document.getElementById('subModal');
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+        }
     }
 }
 
@@ -703,7 +707,7 @@ ${tableHTML}
 }
 
 /* ═══════════════════════════════════════════════════════════
-    初始化
+    初始化與全域事件監聽
 ═══════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
     const schoolName = (typeof CONFIG !== 'undefined' && CONFIG.SCHOOL_NAME) ? CONFIG.SCHOOL_NAME : '民雄國中';
@@ -713,4 +717,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupGradeSelects();
     updateBackBtn();
     showView('loginView');
+
+    // 全域監聽 Modal 點擊關閉事件
+    const modal = document.getElementById('subModal');
+    if (modal) {
+        modal.addEventListener('click', closeSubModal);
+    }
 });
