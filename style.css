@@ -7,6 +7,8 @@
 :root {
     --primary-color: #3b82f6;
     --primary-hover: #2563eb;
+    --secondary-color: #10b981;
+    --secondary-hover: #059669;
     --bg-color: #f0fdf4;
     --card-bg: #ffffff;
     --text-color: #1f2937;
@@ -417,7 +419,7 @@ body {
     vertical-align: middle;
 }
 
-/* ── 代課教師彈出視窗 (Modal) ───────────────────────────── */
+/* ── 代課教師彈出視窗 (Modal) 與分組樣式 ─────────────────── */
 .modal {
     display: none; 
     position: fixed;
@@ -438,7 +440,7 @@ body {
 .modal-content {
     background: #ffffff;
     width: 90%;
-    max-width: 480px;
+    max-width: 520px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     overflow: hidden;
@@ -472,25 +474,60 @@ body {
 
 .modal-body {
     padding: 1.25rem;
-    max-height: 60vh;
+    max-height: 65vh;
     overflow-y: auto;
 }
 
+.sub-group-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.no-teacher-msg {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 12px;
+    padding-left: 4px;
+}
+
 .btn-teacher-tag {
-    padding: 6px 14px;
+    padding: 6px 12px;
     border-radius: 20px;
-    border: 1px solid var(--primary-color);
-    background-color: #eff6ff;
-    color: var(--primary-color);
     font-weight: 500;
     font-size: 0.88rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.btn-teacher-tag:hover {
+/* 主科目空堂教師（藍色系） */
+.btn-primary-subject {
+    border: 1px solid var(--primary-color);
+    background-color: #eff6ff;
+    color: var(--primary-color);
+}
+
+.btn-primary-subject:hover {
     background-color: var(--primary-color);
     color: #ffffff;
+}
+
+/* 該班其他科目空堂教師（綠色系） */
+.btn-other-subject {
+    border: 1px solid var(--secondary-color);
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.btn-other-subject:hover {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+}
+
+.teacher-subj-badge {
+    font-size: 0.75rem;
+    opacity: 0.85;
 }
 
 @keyframes modalFadeIn {
@@ -504,38 +541,98 @@ body {
     }
 }
 
-/* ── 行動裝置 RWD (Mobile < 768px) ─────────────────────── */
-@media (max-width: 768px) {
+/* ── 行動裝置 RWD (Mobile < 600px 直式 full-screen 6ch 模式) ─ */
+@media screen and (max-width: 600px) {
     body {
-        padding: 8px;
+        padding: 4px;
     }
 
-    .login-card, .query-card, .result-card {
-        padding: 18px;
+    .container, #resultView, .card, .result-card {
+        padding-left: 1px !important;
+        padding-right: 1px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    #scheduleTableContainer {
+        width: 100% !important;
+        overflow-x: hidden !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .schedule-table {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: unset !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+        width: 6ch !important;
+        max-width: 6ch !important;
+        padding: 3px 0 !important;
+        box-sizing: border-box !important;
+        vertical-align: middle !important;
+    }
+
+    .schedule-table th,
+    .schedule-table td,
+    .cell-subject,
+    .cell-link,
+    .period-num,
+    .period-time {
+        white-space: normal !important;
+        word-break: break-all !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
     }
 
     .th-period, .td-period {
-        width: 55px;
+        width: 6ch !important;
     }
 
     .period-num {
-        font-size: 0.78rem;
+        font-size: 0.7rem !important;
+        font-weight: bold;
+        line-height: 1.1;
     }
 
     .period-time {
-        font-size: 0.65rem;
+        font-size: 0.5rem !important;
+        color: #666;
+        line-height: 1.0;
+        margin-top: 1px;
     }
 
     .cell-subject {
-        font-size: 0.85rem;
+        font-size: 0.72rem !important;
+        font-weight: bold;
+        line-height: 1.15;
     }
 
     .cell-link {
-        font-size: 0.72rem;
-        padding: 1px 4px;
+        font-size: 0.65rem !important;
+        color: #333;
+        line-height: 1.1;
+        margin-top: 2px;
     }
 
     .schedule-title {
-        font-size: 1.3rem;
+        font-size: 1.2rem !important;
+    }
+
+    .lock-tag {
+        display: block !important;
+        font-size: 0.5rem !important;
+        padding: 0px 1px !important;
+        margin: 2px auto 0 auto !important;
+        width: fit-content;
+        line-height: 1.0;
     }
 }
