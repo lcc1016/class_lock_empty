@@ -660,6 +660,7 @@ function buildScheduleTable(cells, mode) {
 function renderCell(cell, mode, day, period) {
     if (!cell) return '<td class="td-empty"></td>';
     
+    // 教師/班級連結
     const itemsHtml = (cell.items || []).map(item => {
         if (mode === 'class') {
             return `<div class="cell-link" onclick="displayTeacherSchedule('${escHtml(item)}')">${item}</div>`;
@@ -671,13 +672,18 @@ function renderCell(cell, mode, day, period) {
     const lockBadge = cell.isLocked ? `<span class="lock-tag" title="此課程已綁定，不可調課">🔒 綁課</span>` : '';
     const cellClass = cell.isLocked ? 'td-cell cell-locked' : 'td-cell';
 
-    // 科目名稱點擊事件：跳出空堂該科教師彈窗
-    const subjClick = `onclick="showAvailableTeachers('${escHtml(cell.subject)}', ${day}, ${period})"`;
-    const subjHtml = `<div class="cell-subject clickable-subject" ${subjClick} title="點擊檢視該節空堂教師">${cell.subject} ${lockBadge}</div>`;
+    // 關鍵修正：必須在 class 補上 clickable-subject，並將 onclick 與 title 帶入
+    let subjHtml = `<div class="cell-subject">${cell.subject} ${lockBadge}</div>`;
+    if (mode === 'class') {
+        const subjClick = `onclick="showAvailableTeachers('${escHtml(cell.subject)}', ${day}, ${period})"`;
+        subjHtml = `<div class="cell-subject clickable-subject" ${subjClick} title="點擊檢視該節空堂教師">${cell.subject} ${lockBadge}</div>`;
+    }
 
     return `<td class="${cellClass}">
-        ${subjHtml}
-        <div class="cell-items-container">${itemsHtml}</div>
+        <div class="cell-main-info">
+            ${subjHtml}
+            <div class="cell-items-container">${itemsHtml}</div>
+        </div>
     </td>`;
 }
 

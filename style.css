@@ -648,6 +648,9 @@ body::before {
     padding: 2px 4px;
     border-radius: 4px;
     display: inline-block;
+/* 補上這兩行，確保點擊事件優先權高於父階層容器 */
+    position: relative;
+    z-index: 5;
 }
 
 .clickable-subject:hover {
