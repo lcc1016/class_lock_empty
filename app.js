@@ -59,7 +59,7 @@ function logout() {
     homeroomData = {};
     lockedData   = {};
     navHistory   = [];
-    const errEl  = document.getElementById('loginError');
+    const errEl   = document.getElementById('loginError');
     if (errEl) errEl.textContent = '';
     showView('loginView');
 }
@@ -431,8 +431,8 @@ function populateSubstituteSelects(className, classCells) {
 
     if (!leftSel || !rightSel) return;
 
-    leftSel.innerHTML = '<option value="">— 同科目空堂代課 —</option>';
-    rightSel.innerHTML = '<option value="">— 同班級空堂代課 —</option>';
+    leftSel.innerHTML = '<option value="">— 同科目代課教師 —</option>';
+    rightSel.innerHTML = '<option value="">— 同班級任課代課 —</option>';
 
     // 取得該班級所有有課的節次、任課教師與對應科目
     const busyPeriods = new Set(Object.keys(classCells));

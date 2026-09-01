@@ -573,3 +573,67 @@ body::before {
     border-radius: 0.5rem;
     background: var(--glass-bg);
 }
+/* ── 課表儲存格內部 Flex 佈局 ────────────────────────────── */
+.cell-content-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    padding: 2px;
+    width: 100%;
+    height: 100%;
+}
+
+/* 中央課程與教師資訊 */
+.cell-main-info {
+    flex: 1;
+    text-align: center;
+    min-width: 0; /* 避免文字溢出 */
+}
+
+.cell-subject {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.cell-teacher-name {
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-top: 2px;
+}
+
+/* 左右兩側精簡型下拉選單 */
+.cell-sub-select {
+    padding: 2px 4px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--text-dim);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    /* 限制微型選單寬度 */
+    max-width: 58px;
+    flex-shrink: 0;
+}
+
+.cell-sub-select:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+    background-color: #ffffff;
+}
+
+.cell-sub-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+
+/* 列印時隱藏儲存格內的代課選單，僅保留課程名稱與教師 */
+@media print {
+    .cell-sub-select {
+        display: none !important;
+    }
+}
