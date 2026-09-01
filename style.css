@@ -1,596 +1,11 @@
-/* ============================================================
-   課表查詢系統 - 完整主樣式表 (style.css)
-   民雄國中
-   ============================================================ */
-
-/* ── 全域變數設定 ───────────────────────────────────────── */
-:root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --bg-color: #f0fdf4;
-    --card-bg: #ffffff;
-    --text-color: #1f2937;
-    --text-dim: #6b7280;
-    --border-color: #e5e7eb;
-    --locked-bg: #fff1f2;
-    --locked-border: #fca5a5;
-    --locked-text: #991b1b;
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.5;
-    padding: 15px;
-    min-height: 100vh;
-}
-
-/* ── 載入中遮罩 ─────────────────────────────────────────── */
-.loading-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(255, 255, 255, 0.85);
-    z-index: 10000;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 12px;
-    font-weight: bold;
-}
-
-.loading-overlay.show {
-    display: flex !important;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* ── 視圖切換 (View Containers) ─────────────────────────── */
-.view-container {
-    display: none;
-    width: 100%;
-    max-width: 900px;
-    margin: 20px auto;
-    justify-content: center;
-}
-
-.view-container.active {
-    display: flex;
-}
-
-.view-container.result-active {
-    display: block;
-    max-width: 1100px;
-}
-
-.hidden {
-    display: none !important;
-}
-
-/* ── 卡片容器樣式 ───────────────────────────────────────── */
-.login-card, .query-card, .result-card {
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    width: 100%;
-}
-
-.login-card {
-    max-width: 400px;
-    text-align: center;
-}
-
-.system-title {
-    font-size: 1.5rem;
-    margin-bottom: 6px;
-    color: #1e293b;
-}
-
-.system-subtitle {
-    font-size: 0.9rem;
-    color: var(--text-dim);
-    margin-bottom: 24px;
-}
-
-/* ── 表單控制元件 ───────────────────────────────────────── */
-.form-group {
-    margin-bottom: 16px;
-    text-align: left;
-}
-
-.form-group label {
-    display: block;
-    font-size: 0.88rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #334155;
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 0.95rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    outline: none;
-    background-color: #fff;
-    transition: border-color 0.2s;
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-}
-
-.error-msg {
-    color: #ef4444;
-    font-size: 0.85rem;
-    margin: 8px 0;
-    min-height: 1.2em;
-}
-
-/* ── 按鈕系統 ───────────────────────────────────────────── */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 9px 18px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-block {
-    width: 100%;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: #ffffff;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-}
-
-.btn-secondary {
-    background-color: #64748b;
-    color: #ffffff;
-}
-
-.btn-secondary:hover {
-    background-color: #475569;
-}
-
-.btn-outline {
-    border-color: #cbd5e1;
-    background-color: #fff;
-    color: #334155;
-}
-
-.btn-outline:hover {
-    background-color: #f8fafc;
-}
-
-.btn-outline-danger {
-    border-color: #fca5a5;
-    color: #dc2626;
-    background: #fff;
-}
-
-.btn-outline-danger:hover {
-    background-color: #fef2f2;
-}
-
-.btn-sm {
-    padding: 4px 10px;
-    font-size: 0.82rem;
-}
-
-.mt-3 {
-    margin-top: 1rem;
-}
-
-/* ── 查詢頁 Tab 頁籤與網格 ──────────────────────────────── */
-.header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.semester-badge {
-    background-color: #e0f2fe;
-    color: #0369a1;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.tab-header {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.tab-btn {
-    padding: 10px 20px;
-    border: none;
-    background: none;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-dim);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-}
-
-.tab-btn.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-}
-
-.query-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-}
-
-.query-grid-2 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 16px;
-}
-
-/* ── 課表結果頁標頭與動作列 ─────────────────────────────── */
-.action-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    gap: 10px;
-}
-
-.title-header-container {
-    text-align: center;
-    margin: 15px 0 20px;
-}
-
-.schedule-title {
-    font-size: 1.6rem;
-    color: #0f172a;
-}
-
-/* ── 課表表格結構與響應式橫向滾動 ───────────────────────── */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-}
-
-.schedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    background-color: #ffffff;
-    min-width: 650px;
-}
-
-.schedule-table th,
-.schedule-table td {
-    border: 1px solid var(--border-color);
-    padding: 8px 4px;
-    text-align: center;
-    vertical-align: middle;
-    box-sizing: border-box;
-}
-
-.schedule-table th {
-    background-color: #f8fafc;
-    font-weight: 600;
-    color: #475569;
-}
-
-.th-period, .td-period {
-    width: 70px;
-    background-color: #f8fafc;
-}
-
-.period-num {
-    display: block;
-    font-weight: 600;
-    font-size: 0.85rem;
-    line-height: 1.2;
-}
-
-.period-time {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    line-height: 1.15;
-    margin-top: 2px;
-}
-
-/* ── 課表儲存格內部 ─────────────────────────────────────── */
-.td-empty {
-    background-color: #fafafa;
-}
-
-.td-cell {
-    height: 100%;
-}
-
-.cell-main-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-}
-
-.cell-subject {
-    font-weight: 600;
-    font-size: 0.95rem;
-    line-height: 1.25;
-}
-
-.clickable-subject {
-    cursor: pointer !important;
-    color: var(--primary-color);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    transition: opacity 0.2s ease;
-}
-
-.clickable-subject:hover {
-    opacity: 0.75;
-}
-
-.cell-items-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    justify-content: center;
-}
-
-.cell-link {
-    display: inline-block;
-    font-size: 0.8rem;
-    color: #4b5563;
-    background-color: #f3f4f6;
-    padding: 2px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.15s;
-}
-
-.cell-link:hover {
-    background-color: #e5e7eb;
-    color: #111827;
-}
-
-/* ── 綁課樣式 ───────────────────────────────────────────── */
-.td-cell.cell-locked {
-    background-color: var(--locked-bg);
-}
-
-.lock-tag {
-    display: inline-block;
-    background-color: #ef4444;
-    color: #ffffff;
-    font-size: 0.65rem;
-    padding: 1px 4px;
-    border-radius: 3px;
-    margin-left: 2px;
-    font-weight: bold;
-    vertical-align: middle;
-}
-
-/* ── 代課教師彈出視窗 (Modal) ───────────────────────────── */
-.modal {
-    display: none; 
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal.show {
-    display: flex !important;
-}
-
-.modal-content {
-    background: #ffffff;
-    width: 90%;
-    max-width: 480px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    overflow: hidden;
-    animation: modalFadeIn 0.2s ease-out;
-}
-
-.modal-header {
-    padding: 1rem 1.25rem;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #64748b;
-    line-height: 1;
-}
-
-.modal-body {
-    padding: 1.25rem;
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
-.btn-teacher-tag {
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid var(--primary-color);
-    background-color: #eff6ff;
-    color: var(--primary-color);
-    font-weight: 500;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-teacher-tag:hover {
-    background-color: var(--primary-color);
-    color: #ffffff;
-}
-
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ── 行動裝置 RWD (Mobile < 768px) ─────────────────────── */
-@media (max-width: 768px) {
-    body {
-        padding: 8px;
-    }
-
-    .login-card, .query-card, .result-card {
-        padding: 18px;
-    }
-
-    .th-period, .td-period {
-        width: 55px;
-    }
-
-    .period-num {
-        font-size: 0.78rem;
-    }
-
-    .period-time {
-        font-size: 0.65rem;
-    }
-
-    .cell-subject {
-        font-size: 0.85rem;
-    }
-
-    .cell-link {
-        font-size: 0.72rem;
-        padding: 1px 4px;
-    }
-
-    .schedule-title {
-        font-size: 1.3rem;
-    }
-}
-/* ── Modal 內不同科目的代課教師顏色區分 ─────────────────── */
-.sub-group-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #475569;
-    margin-bottom: 8px;
-    text-align: left;
-}
-
-.no-teacher-msg {
-    font-size: 0.85rem;
-    color: #94a3b8;
-    margin: 4px 0 12px 12px;
-}
-
-/* 主科目標籤（藍色） */
-.btn-teacher-tag.btn-primary-subject {
-    border-color: var(--primary-color);
-    background-color: #eff6ff;
-    color: var(--primary-color);
-}
-
-.btn-teacher-tag.btn-primary-subject:hover {
-    background-color: var(--primary-color);
-    color: #ffffff;
-}
-
-/* 該班其他科目標籤（綠色） */
-.btn-teacher-tag.btn-other-subject {
-    border-color: #10b981;
-    background-color: #ecfdf5;
-    color: #047857;
-}
-
-.btn-teacher-tag.btn-other-subject:hover {
-    background-color: #10b981;
-    color: #ffffff;
-}
-
-.teacher-subj-badge {
-    font-size: 0.75rem;
-    opacity: 0.85;
-}
-
 /* ═══════════════════════════════════════════════════════════
-    手機直式課表最適化：橫向順暢滑動 + 寬度自主延伸
+    手機直式全版呈現（自動換行、滿版顯示）
 ═══════════════════════════════════════════════════════════ */
 @media screen and (max-width: 600px) {
-    /* 1. 外層容器極致放寬，移除白色卡片過大的空白邊框 */
+    /* 1. 外層容器壓到最極致，釋放所有螢幕寬度 */
     .container, #resultView, .card {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
+        padding-left: 2px !important;
+        padding-right: 2px !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
         width: 100% !important;
@@ -598,45 +13,82 @@ body {
         box-sizing: border-box !important;
     }
 
-    /* 2. 開啟原生滑順橫向滾動 (iOS/Android 均支援) */
+    /* 2. 容器關閉滾動條，確保不會出現左右滑動 */
     #scheduleTableContainer {
         width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch; /* 滑動體驗更平滑 */
-        border-radius: 8px;
-        box-shadow: inset -5px 0 8px -5px rgba(0,0,0,0.15); /* 提示右側可滑動的陰影 */
+        overflow-x: hidden !important; /* 關閉橫向滾動 */
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
-    /* 3. 取消強制固定比例，讓表格依內容自動展開 */
+    /* 3. 強制表格滿版 100%，並設定固定版面佈局 */
     .schedule-table {
-        width: max-content !important; /* 根據文字長度自動延伸，不硬擠 */
-        min-width: 500px !important;    /* 確保週一到週五都有足夠寬度顯示 */
-        table-layout: auto !important;
-        font-size: 0.85rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important; /* 強制依指定比例分配欄寬 */
+        border-collapse: collapse !important;
+        font-size: 0.72rem !important;
     }
 
-    /* 4. 首欄（節次）固定在最左側（凍結窗格），滑動時不會消失 */
+    /* 4. 欄位比例分配：節次欄佔 15%，週一～週五每欄各佔 17% */
     .schedule-table th:first-child,
     .schedule-table td:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 2;
-        background-color: #f8f9fa !important;
-        border-right: 2px solid #dee2e6 !important;
-        min-width: 65px !important;
+        width: 15% !important;
+        padding: 4px 1px !important;
     }
 
-    /* 5. 欄位適度內襯與字型設定 */
+    .schedule-table th:not(:first-child),
+    .schedule-table td:not(:first-child) {
+        width: 17% !important;
+        padding: 4px 1px !important;
+    }
+
+    /* 5. 核心設定：文字超過欄寬時自動換列 */
     .schedule-table th,
-    .schedule-table td {
-        padding: 6px 8px !important;
-        white-space: nowrap; /* 避免文字亂斷行 */
+    .schedule-table td,
+    .cell-subject,
+    .cell-link {
+        white-space: normal !important;  /* 允許自動換行 */
+        word-break: break-all !important;  /* 長單字/文字強制斷行 */
+        overflow-wrap: break-word !important;
+        text-align: center !important;
     }
 
-    /* 6. 綁課標籤彈性縮小 */
+    /* 6. 節次文字與時間縮小微調 */
+    .period-num {
+        font-size: 0.7rem !important;
+        font-weight: bold;
+        line-height: 1.1;
+    }
+
+    .period-time {
+        font-size: 0.55rem !important;
+        color: #666;
+        line-height: 1.0;
+        margin-top: 2px;
+    }
+
+    /* 7. 科目與教師名稱排版優化 */
+    .cell-subject {
+        font-size: 0.75rem !important;
+        font-weight: 700;
+        line-height: 1.15;
+        margin-bottom: 2px;
+    }
+
+    .cell-link {
+        font-size: 0.68rem !important;
+        color: #444;
+        line-height: 1.1;
+    }
+
+    /* 8. 綁課標籤改為塊狀顯示或適度換行，避免擠爆表格 */
     .lock-tag {
-        font-size: 0.65rem !important;
-        padding: 1px 3px !important;
-        margin-left: 2px !important;
+        display: inline-block !important;
+        font-size: 0.55rem !important;
+        padding: 0px 2px !important;
+        margin: 1px 0 0 0 !important;
+        border-radius: 2px;
+        line-height: 1.1;
     }
 }
