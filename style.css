@@ -694,3 +694,10 @@ body {
         line-height: 1.0;
     }
 }
+/* 將綁課標籤的字體大小調整為與科目名稱相同 */
+.bind-tag, 
+.bound-badge, 
+.tag-bind {
+    font-size: inherit !important; /* 繼承父層（科目）的字體大小 */
+    vertical-align: middle;        /* 確保與科目文字垂直對齊 */
+}
