@@ -109,24 +109,9 @@
                 </div>
             </div>
 
-            <!-- ══ 標題與左右代課選單區塊 ════════════════════════════ -->
+            <!-- 標題區塊 -->
             <div id="headerContainer" class="title-header-container">
-                <!-- 左側：同科目代課選單 -->
-                <div id="leftSelectContainer" class="substitute-select-group">
-                    <select id="sameSubjectSelect" class="form-control sub-select" onchange="onSubSelectChange(this)">
-                        <option value="">— 同科目代課教師 —</option>
-                    </select>
-                </div>
-                
-                <!-- 中央：課表標題 -->
                 <h2 id="scheduleTitle" class="schedule-title"></h2>
-
-                <!-- 右側：同班級代課選單 -->
-                <div id="rightSelectContainer" class="substitute-select-group">
-                    <select id="sameClassSelect" class="form-control sub-select" onchange="onSubSelectChange(this)">
-                        <option value="">— 同班級任課代課 —</option>
-                    </select>
-                </div>
             </div>
 
             <!-- 課表動態渲染容器 -->
@@ -135,10 +120,8 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
-    <script src="app.js"></script>
-<!-- ══ 4. 可代課教師彈出視窗 (Modal) ════════════════════════ -->
-    <div id="subModal" class="modal-overlay" onclick="closeSubModal(event)">
+    <!-- ══ 4. 可代課教師彈出視窗 (Modal) ════════════════════════ -->
+    <div id="subModal" class="modal" onclick="closeSubModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3 id="modalTitle">可代課教師名單</h3>
@@ -150,6 +133,7 @@
         </div>
     </div>
 
+    <!-- 引入 JavaScript 資源 (僅需引一次，放在 </body> 前) -->
     <script src="config.js"></script>
     <script src="app.js"></script>
 </body>
