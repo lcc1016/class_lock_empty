@@ -26,7 +26,7 @@ const scheduleTitle  = document.getElementById('scheduleTitle');
 const scheduleTableContainer = document.getElementById('scheduleTableContainer');
 
 /* ═══════════════════════════════════════════════════════════
-   視圖切換
+    視圖切換
 ═══════════════════════════════════════════════════════════ */
 function showView(viewId) {
     [loginView, queryView, resultView].forEach(v => {
@@ -65,7 +65,7 @@ function logout() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   導航歷史（返回上一頁）
+    導航歷史（返回上一頁）
 ═══════════════════════════════════════════════════════════ */
 function pushNav(type, value) {
     navHistory.push({ type, value });
@@ -91,7 +91,7 @@ function updateBackBtn() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   學期下拉選單初始化
+    學期下拉選單初始化
 ═══════════════════════════════════════════════════════════ */
 function populateSemesterSelect() {
     const sel = document.getElementById('semesterSelect');
@@ -110,7 +110,7 @@ function populateSemesterSelect() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   登入查詢
+    登入查詢
 ═══════════════════════════════════════════════════════════ */
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
@@ -150,7 +150,7 @@ if (loginForm) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CSV 與 JSON 載入與解析
+    CSV 與 JSON 載入與解析
 ═══════════════════════════════════════════════════════════ */
 async function fetchAndParseCSV(semLabel) {
     if (loadingOverlay) loadingOverlay.classList.add('show');
@@ -255,7 +255,7 @@ function parseCSV(text) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   建立分類資料
+    建立分類資料
 ═══════════════════════════════════════════════════════════ */
 function buildCategories() {
     const allClasses = new Set();
@@ -331,7 +331,7 @@ function normalizeSubject(subj) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   填充查詢 UI
+    填充查詢 UI
 ═══════════════════════════════════════════════════════════ */
 function populateQueryUI() {
     populateGradeSelect('sel7',  classGroups['七年級']);
@@ -362,7 +362,7 @@ function populateGradeSelect(selId, classes) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Tab 切換
+    Tab 切換
 ═══════════════════════════════════════════════════════════ */
 function switchTab(tab) {
     const tabClass = document.getElementById('tabClass');
@@ -377,7 +377,7 @@ function switchTab(tab) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   班級查詢與代課清單產生
+    班級查詢
 ═══════════════════════════════════════════════════════════ */
 function setupGradeSelects() {
     const gradeMap = {
@@ -424,89 +424,8 @@ function submitClassQuery() {
     displayClassSchedule(cls);
 }
 
-/* 計算同科目與同班級之代課老師名單 */
-function populateSubstituteSelects(className, classCells) {
-    const leftSel = document.getElementById('sameSubjectSelect');
-    const rightSel = document.getElementById('sameClassSelect');
-
-    if (!leftSel || !rightSel) return;
-
-    leftSel.innerHTML = '<option value="">— 同科目代課教師 —</option>';
-    rightSel.innerHTML = '<option value="">— 同班級任課代課 —</option>';
-
-    const busyPeriods = new Set(Object.keys(classCells));
-    const classTeachers = new Set();
-    const classSubjectTeachers = {}; 
-
-    Object.entries(classCells).forEach(([key, cell]) => {
-        const subj = normalizeSubject(cell.subject);
-        if (!classSubjectTeachers[subj]) classSubjectTeachers[subj] = new Set();
-        (cell.items || []).forEach(t => {
-            classTeachers.add(t);
-            classSubjectTeachers[subj].add(t);
-        });
-    });
-
-    const teacherFreePeriods = {};
-    scheduleData.forEach(row => {
-        const tName = row.teachername;
-        teacherFreePeriods[tName] = new Set();
-
-        busyPeriods.forEach(key => {
-            const [d, p] = key.split('-');
-            const hasLesson = !!row[`s${d}${p}`];
-            if (!hasLesson) {
-                teacherFreePeriods[tName].add(key);
-            }
-        });
-    });
-
-    const sameSubjCandidates = new Set();
-    Object.entries(classSubjectTeachers).forEach(([subj, currentClassSubjTeachers]) => {
-        const allSubjTeachers = subjectTeachers[subj] || [];
-        allSubjTeachers.forEach(t => {
-            if (!currentClassSubjTeachers.has(t)) {
-                const freeCount = Array.from(teacherFreePeriods[t] || []).length;
-                if (freeCount > 0) {
-                    sameSubjCandidates.add(t);
-                }
-            }
-        });
-    });
-
-    [...sameSubjCandidates].sort().forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t;
-        opt.textContent = t;
-        leftSel.appendChild(opt);
-    });
-
-    const sameClassCandidates = new Set();
-    classTeachers.forEach(t => {
-        const freeCount = Array.from(teacherFreePeriods[t] || []).length;
-        if (freeCount > 0) {
-            sameClassCandidates.add(t);
-        }
-    });
-
-    [...sameClassCandidates].sort().forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t;
-        opt.textContent = t;
-        rightSel.appendChild(opt);
-    });
-}
-
-function onSubSelectChange(selectEl) {
-    const teacherName = selectEl.value;
-    if (teacherName) {
-        displayTeacherSchedule(teacherName);
-        selectEl.value = "";
-    }
-}
-
 /* ═══════════════════════════════════════════════════════════
-   教師查詢
+    教師查詢
 ═══════════════════════════════════════════════════════════ */
 function onSubjectChange() {
     const subjSel = document.getElementById('subjectSelect');
@@ -539,7 +458,7 @@ function submitTeacherQuery() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   顯示課表
+    顯示課表
 ═══════════════════════════════════════════════════════════ */
 function displayClassSchedule(className) {
     pushNav('class', className);
@@ -579,7 +498,6 @@ function displayClassSchedule(className) {
     const rightContainer = document.getElementById('rightSelectContainer');
     if (leftContainer) leftContainer.style.visibility = 'visible';
     if (rightContainer) rightContainer.style.visibility = 'visible';
-    populateSubstituteSelects(className, cells);
 
     showView('resultView');
     updateBackBtn();
@@ -617,7 +535,7 @@ function displayTeacherSchedule(teacherName) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   建構課表 HTML
+    建構課表 HTML
 ═══════════════════════════════════════════════════════════ */
 function buildScheduleTable(cells, mode) {
     const periods   = (typeof CONFIG !== 'undefined' && CONFIG.PERIOD_TIMES) || [];
@@ -672,7 +590,6 @@ function renderCell(cell, mode, day, period) {
     const lockBadge = cell.isLocked ? `<span class="lock-tag" title="此課程已綁定，不可調課">🔒 綁課</span>` : '';
     const cellClass = cell.isLocked ? 'td-cell cell-locked' : 'td-cell';
 
-    // 關鍵修正：必須在 class 補上 clickable-subject，並將 onclick 與 title 帶入
     let subjHtml = `<div class="cell-subject">${cell.subject} ${lockBadge}</div>`;
     if (mode === 'class') {
         const subjClick = `onclick="showAvailableTeachers('${escHtml(cell.subject)}', ${day}, ${period})"`;
@@ -688,7 +605,7 @@ function renderCell(cell, mode, day, period) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   彈出視窗（Modal）邏輯：查詢該節空堂之同科教師
+    彈出視窗（Modal）邏輯：查詢該節空堂之同科教師
 ═══════════════════════════════════════════════════════════ */
 function showAvailableTeachers(subject, day, period) {
     const baseSubject = normalizeSubject(subject);
@@ -747,7 +664,7 @@ function escHtml(str) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   列印
+    列印
 ═══════════════════════════════════════════════════════════ */
 function printSchedule() {
     if (!scheduleTitle || !scheduleTableContainer) return;
@@ -796,7 +713,7 @@ ${tableHTML}
 }
 
 /* ═══════════════════════════════════════════════════════════
-   初始化
+    初始化
 ═══════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
     const schoolName = (typeof CONFIG !== 'undefined' && CONFIG.SCHOOL_NAME) ? CONFIG.SCHOOL_NAME : '民雄國中';
