@@ -506,13 +506,13 @@ body {
 
 
 /* ═══════════════════════════════════════════════════════════
-    手機直式課表：固定每欄 5 字元寬度 (全版自動換列)
+    手機直式課表：固定每欄 6ch 寬度 (全版自動換列)
 ═══════════════════════════════════════════════════════════ */
 @media screen and (max-width: 600px) {
-    /* 1. 外層容器壓至最極致，確保不浪費左右邊界 */
+    /* 1. 外層容器壓至極致，確保不浪費左右螢幕邊界 */
     .container, #resultView, .card {
-        padding-left: 2px !important;
-        padding-right: 2px !important;
+        padding-left: 1px !important;
+        padding-right: 1px !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
         width: 100% !important;
@@ -536,17 +536,17 @@ body {
         border-collapse: collapse !important;
     }
 
-    /* 4. 關鍵：設定 6 個欄位寬度皆為可容納 5 個字的寬度 (約 11ch) */
+    /* 4. 關鍵：設定 6 個欄位寬度皆為 6ch */
     .schedule-table th,
     .schedule-table td {
-        width: 11ch !important;
-        max-width: 11ch !important;
-        padding: 3px 1px !important;
+        width: 6ch !important;
+        max-width: 6ch !important;
+        padding: 3px 0 !important;
         box-sizing: border-box !important;
         vertical-align: middle !important;
     }
 
-    /* 5. 強制文字強制斷行與自動換列 */
+    /* 5. 強制文字自動換列與對齊 */
     .schedule-table th,
     .schedule-table td,
     .cell-subject,
@@ -559,38 +559,38 @@ body {
         text-align: center !important;
     }
 
-    /* 6. 節次欄位樣式優化 */
+    /* 6. 節次欄位樣式調整 */
     .period-num {
-        font-size: 0.72rem !important;
+        font-size: 0.7rem !important;
         font-weight: bold;
         line-height: 1.1;
     }
 
     .period-time {
-        font-size: 0.55rem !important;
+        font-size: 0.5rem !important;
         color: #666;
         line-height: 1.0;
         margin-top: 1px;
     }
 
-    /* 7. 科目與教師名稱字體微調 */
+    /* 7. 科目與教師名稱字體調整 */
     .cell-subject {
-        font-size: 0.75rem !important;
+        font-size: 0.72rem !important;
         font-weight: bold;
         line-height: 1.15;
     }
 
     .cell-link {
-        font-size: 0.68rem !important;
+        font-size: 0.65rem !important;
         color: #333;
         line-height: 1.1;
         margin-top: 2px;
     }
 
-    /* 8. 綁課標籤換行顯示，避免卡住字數算量 */
+    /* 8. 綁課標籤換行顯示 */
     .lock-tag {
         display: block !important;
-        font-size: 0.55rem !important;
+        font-size: 0.5rem !important;
         padding: 0px 1px !important;
         margin: 2px auto 0 auto !important;
         width: fit-content;
