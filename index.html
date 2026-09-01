@@ -137,5 +137,20 @@
 
     <script src="config.js"></script>
     <script src="app.js"></script>
+<!-- ══ 4. 可代課教師彈出視窗 (Modal) ════════════════════════ -->
+    <div id="subModal" class="modal-overlay" onclick="closeSubModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modalTitle">可代課教師名單</h3>
+                <span class="modal-close" onclick="closeSubModal()">&times;</span>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <!-- 動態填入代課教師清單 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

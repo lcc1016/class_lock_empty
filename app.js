@@ -434,10 +434,9 @@ function populateSubstituteSelects(className, classCells) {
     leftSel.innerHTML = '<option value="">— 同科目代課教師 —</option>';
     rightSel.innerHTML = '<option value="">— 同班級任課代課 —</option>';
 
-    // 取得該班級所有有課的節次、任課教師與對應科目
     const busyPeriods = new Set(Object.keys(classCells));
     const classTeachers = new Set();
-    const classSubjectTeachers = {}; // subject -> Set(teachers)
+    const classSubjectTeachers = {}; 
 
     Object.entries(classCells).forEach(([key, cell]) => {
         const subj = normalizeSubject(cell.subject);
@@ -448,7 +447,6 @@ function populateSubstituteSelects(className, classCells) {
         });
     });
 
-    // 找出所有教師在該班級有課節次的空堂狀況
     const teacherFreePeriods = {};
     scheduleData.forEach(row => {
         const tName = row.teachername;
@@ -463,13 +461,11 @@ function populateSubstituteSelects(className, classCells) {
         });
     });
 
-    // 1. 左側：同科目空堂教師 (非該班目前任課該科目的教師，且在該班該節次有空堂)
     const sameSubjCandidates = new Set();
     Object.entries(classSubjectTeachers).forEach(([subj, currentClassSubjTeachers]) => {
         const allSubjTeachers = subjectTeachers[subj] || [];
         allSubjTeachers.forEach(t => {
             if (!currentClassSubjTeachers.has(t)) {
-                // 若他在該班有上課的任一節次有空堂，即可列入選單
                 const freeCount = Array.from(teacherFreePeriods[t] || []).length;
                 if (freeCount > 0) {
                     sameSubjCandidates.add(t);
@@ -485,7 +481,6 @@ function populateSubstituteSelects(className, classCells) {
         leftSel.appendChild(opt);
     });
 
-    // 2. 右側：同班級其他任課教師空堂 (該班級任課教師，且在該班級其他有課節次有空堂)
     const sameClassCandidates = new Set();
     classTeachers.forEach(t => {
         const freeCount = Array.from(teacherFreePeriods[t] || []).length;
@@ -502,12 +497,11 @@ function populateSubstituteSelects(className, classCells) {
     });
 }
 
-/* 代課選單切換事件 */
 function onSubSelectChange(selectEl) {
     const teacherName = selectEl.value;
     if (teacherName) {
         displayTeacherSchedule(teacherName);
-        selectEl.value = ""; // 重設選單
+        selectEl.value = "";
     }
 }
 
@@ -581,7 +575,6 @@ function displayClassSchedule(className) {
     if (scheduleTitle) scheduleTitle.innerHTML = `${className} 班課表 ${hmHtml}`;
     if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'class');
 
-    // 顯示並填充兩側代課選單
     const leftContainer = document.getElementById('leftSelectContainer');
     const rightContainer = document.getElementById('rightSelectContainer');
     if (leftContainer) leftContainer.style.visibility = 'visible';
@@ -614,7 +607,6 @@ function displayTeacherSchedule(teacherName) {
     if (scheduleTitle) scheduleTitle.textContent = `${teacherName} 老師課表`;
     if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'teacher');
 
-    // 隱藏兩側代課選單
     const leftContainer = document.getElementById('leftSelectContainer');
     const rightContainer = document.getElementById('rightSelectContainer');
     if (leftContainer) leftContainer.style.visibility = 'hidden';
@@ -643,7 +635,7 @@ function buildScheduleTable(cells, mode) {
             <div class="period-time">${et.start}<br>${et.end}</div>
         </td>`;
         for (let d = 1; d <= 5; d++) {
-            html += renderCell(cells[`${d}-0`], mode);
+            html += renderCell(cells[`${d}-0`], mode, d, 0);
         }
         html += '</tr>';
     }
@@ -656,7 +648,7 @@ function buildScheduleTable(cells, mode) {
         }
         html += '</td>';
         for (let d = 1; d <= 5; d++) {
-            html += renderCell(cells[`${d}-${p}`], mode);
+            html += renderCell(cells[`${d}-${p}`], mode, d, p);
         }
         html += '</tr>';
     }
@@ -665,7 +657,7 @@ function buildScheduleTable(cells, mode) {
     return html;
 }
 
-function renderCell(cell, mode) {
+function renderCell(cell, mode, day, period) {
     if (!cell) return '<td class="td-empty"></td>';
     
     const itemsHtml = (cell.items || []).map(item => {
@@ -679,10 +671,69 @@ function renderCell(cell, mode) {
     const lockBadge = cell.isLocked ? `<span class="lock-tag" title="此課程已綁定，不可調課">🔒 綁課</span>` : '';
     const cellClass = cell.isLocked ? 'td-cell cell-locked' : 'td-cell';
 
+    // 科目名稱點擊事件：跳出空堂該科教師彈窗
+    const subjClick = `onclick="showAvailableTeachers('${escHtml(cell.subject)}', ${day}, ${period})"`;
+    const subjHtml = `<div class="cell-subject clickable-subject" ${subjClick} title="點擊檢視該節空堂教師">${cell.subject} ${lockBadge}</div>`;
+
     return `<td class="${cellClass}">
-        <div class="cell-subject">${cell.subject} ${lockBadge}</div>
+        ${subjHtml}
         <div class="cell-items-container">${itemsHtml}</div>
     </td>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   彈出視窗（Modal）邏輯：查詢該節空堂之同科教師
+═══════════════════════════════════════════════════════════ */
+function showAvailableTeachers(subject, day, period) {
+    const baseSubject = normalizeSubject(subject);
+    const teachersOfSubj = subjectTeachers[baseSubject] || [];
+    
+    // 過濾出在該 day/period 沒有課的教師
+    const freeTeachers = teachersOfSubj.filter(teacher => {
+        const row = scheduleData.find(r => r.teachername === teacher);
+        if (!row) return false;
+        return !row[`s${day}${period}`]; // 沒有課即為空堂
+    });
+
+    const periodText = period === 0 ? '早自習' : `第 ${period} 節`;
+    const dayText = DAYS[day - 1] || day;
+    
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modal = document.getElementById('subModal');
+
+    if (modalTitle) {
+        modalTitle.textContent = `星期${dayText}${periodText}【${baseSubject}】可代課教師`;
+    }
+
+    if (modalBody) {
+        if (freeTeachers.length === 0) {
+            modalBody.innerHTML = `<p style="text-align:center; color:#888; margin:1rem 0;">該時段無空堂的【${baseSubject}】教師。</p>`;
+        } else {
+            let listHtml = '<div class="teacher-grid">';
+            freeTeachers.forEach(t => {
+                listHtml += `<button class="btn btn-outline-primary btn-teacher-tag" onclick="selectModalTeacher('${escHtml(t)}')">${t}</button>`;
+            });
+            listHtml += '</div>';
+            modalBody.innerHTML = listHtml;
+        }
+    }
+
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function selectModalTeacher(teacherName) {
+    closeSubModal();
+    displayTeacherSchedule(teacherName);
+}
+
+function closeSubModal(event) {
+    if (!event || event.target.id === 'subModal' || event.target.classList.contains('modal-close')) {
+        const modal = document.getElementById('subModal');
+        if (modal) modal.style.display = 'none';
+    }
 }
 
 function escHtml(str) {
