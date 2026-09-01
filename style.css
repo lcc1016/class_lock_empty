@@ -355,14 +355,14 @@ body {
 .period-num {
     display: block;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: #1e293b;
     line-height: 1.2;
 }
 
 .period-time {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     color: #94a3b8;
     line-height: 1.15;
     margin-top: 2px;
@@ -627,13 +627,13 @@ body {
     }
 
     .period-num {
-        font-size: 0.65rem !important;
+        font-size: 0.78rem !important;
         font-weight: bold;
         line-height: 1.0;
     }
 
     .period-time {
-        font-size: 0.48rem !important;
+        font-size: 0.58rem !important;
         color: #64748b;
         line-height: 0.95;
         margin-top: 1px;
