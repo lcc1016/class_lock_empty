@@ -24,7 +24,17 @@ function escHtml(str) {
 
 function normalizeSubject(subj) {
     if (!subj) return '';
-    return subj.trim();
+    return String(subj).trim();
+}
+
+// 統一清洗班級格式 (去除 .0、空格等)
+function normalizeClassName(c) {
+    if (c === null || c === undefined) return '';
+    let str = String(c).trim();
+    if (str.endsWith('.0')) {
+        str = str.slice(0, -2);
+    }
+    return str;
 }
 
 function showLoading(show) {
@@ -47,14 +57,14 @@ function showAlert(elementId, msg) {
 // ── 判斷班級是否精準匹配 ───────────────────────────────────────
 function isClassMatch(rawClassStr, targetClass) {
     if (!rawClassStr || !targetClass) return false;
+    const target = normalizeClassName(targetClass);
     // 依空格、斜線、頓號、逗號切割班級名稱
-    const classes = rawClassStr.split(/[\s/,\u3001]+/).map(c => c.trim());
-    return classes.includes(targetClass.trim());
+    const classes = String(rawClassStr).split(/[\s/,\u3001]+/).map(normalizeClassName);
+    return classes.includes(target);
 }
 
-// ── CSV 解析器 (修復 BOM 字元與解析問題) ──────────────────────
+// ── CSV 解析器 (相容浮點數與欄位空格) ──────────────────────────
 function parseCSV(text) {
-    // 移除 UTF-8 BOM 開頭，避免標頭 teachername 抓不到
     let cleanText = text.replace(/^\uFEFF/, '');
     const lines = cleanText.split(/\r\n|\n/);
     if (lines.length === 0) return [];
@@ -67,7 +77,6 @@ function parseCSV(text) {
         if (!line) continue;
 
         const row = {};
-        // 正則匹配 CSV 欄位（處理逗號與雙引號）
         const matches = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || line.split(',');
 
         headers.forEach((h, idx) => {
@@ -76,11 +85,13 @@ function parseCSV(text) {
             row[h] = val;
         });
 
-        // 兼容大小寫鍵值
-        if (row.teachername && !row.teacherName) {
-            row.teacherName = row.teachername;
+        // 整理 teachername
+        const tName = (row.teachername || row.teacherName || '').trim();
+        if (tName) {
+            row.teachername = tName;
+            row.teacherName = tName;
+            result.push(row);
         }
-        result.push(row);
     }
     return result;
 }
@@ -183,13 +194,13 @@ function parseSubjectTeachers() {
     const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     scheduleData.forEach(row => {
-        const teacher = row.teachername || row.teacherName;
+        const teacher = row.teachername;
         if (!teacher) return;
 
         for (let d = 1; d <= 5; d++) {
             for (let p of PERIODS) {
                 const subj = row[`s${d}${p}`];
-                if (subj && subj.trim() !== '') {
+                if (subj && String(subj).trim() !== '') {
                     const normSubj = normalizeSubject(subj);
                     if (!subjectTeachers[normSubj]) {
                         subjectTeachers[normSubj] = new Set();
@@ -221,15 +232,16 @@ function populateQuerySelects() {
             for (let p of PERIODS) {
                 const cStr = row[`c${d}${p}`];
                 if (cStr) {
-                    cStr.split(/[\s/,\u3001]+/).forEach(c => {
-                        if (c.trim()) classes.add(c.trim());
+                    String(cStr).split(/[\s/,\u3001]+/).forEach(c => {
+                        const normC = normalizeClassName(c);
+                        if (normC) classes.add(normC);
                     });
                 }
             }
         }
     });
 
-    const classList = [...classes].sort();
+    const classList = [...classes].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
     [sel7, sel8, sel9, selSp].forEach(s => {
         if (s) s.innerHTML = '<option value="">— 選擇班級 —</option>';
@@ -240,12 +252,13 @@ function populateQuerySelects() {
         opt.value = c;
         opt.textContent = c;
 
-        if (/^[7七]/.test(c) || c.startsWith('7')) sel7?.appendChild(opt);
-        else if (/^[8八]/.test(c) || c.startsWith('8')) sel8?.appendChild(opt);
-        else if (/^[9九]/.test(c) || c.startsWith('9')) sel9?.appendChild(opt);
+        if (c.startsWith('7')) sel7?.appendChild(opt);
+        else if (c.startsWith('8')) sel8?.appendChild(opt);
+        else if (c.startsWith('9')) sel9?.appendChild(opt);
         else selSp?.appendChild(opt);
     });
 
+    // 填入科目下拉選單
     if (subjectSelect) {
         subjectSelect.innerHTML = '<option value="">— 選擇科目 —</option>';
         Object.keys(subjectTeachers).sort().forEach(subj => {
@@ -253,6 +266,19 @@ function populateQuerySelects() {
             opt.value = subj;
             opt.textContent = subj;
             subjectSelect.appendChild(opt);
+        });
+    }
+
+    // 預設將教師下拉選單載入所有教師
+    const teacherSelect = document.getElementById('teacherSelect');
+    if (teacherSelect) {
+        teacherSelect.innerHTML = '<option value="">— 選擇教師 —</option>';
+        const allTeachers = [...new Set(scheduleData.map(r => r.teachername))].sort();
+        allTeachers.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            teacherSelect.appendChild(opt);
         });
     }
 }
@@ -264,8 +290,18 @@ function onSubjectChange() {
     if (!teacherSelect) return;
 
     teacherSelect.innerHTML = '<option value="">— 選擇教師 —</option>';
+    
     if (subj && subjectTeachers[subj]) {
         subjectTeachers[subj].forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            teacherSelect.appendChild(opt);
+        });
+    } else {
+        // 若未選科目，顯示全部教師
+        const allTeachers = [...new Set(scheduleData.map(r => r.teachername))].sort();
+        allTeachers.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t;
             opt.textContent = t;
@@ -300,21 +336,22 @@ function submitTeacherQuery() {
 
 // ── 課表繪製邏輯 ──────────────────────────────────────────────
 function displayClassSchedule(className) {
-    lastQueryTarget = className;
+    const targetClass = normalizeClassName(className);
+    lastQueryTarget = targetClass;
     const cells = {};
     const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     scheduleData.forEach(row => {
-        const teacher = row.teachername || row.teacherName;
+        const teacher = row.teachername;
         for (let d = 1; d <= 5; d++) {
             for (let p of PERIODS) {
                 const cStr = row[`c${d}${p}`];
-                // 使用精確邊界判定，解決多合班課表擠在一起的問題
-                if (cStr && isClassMatch(cStr, className)) {
+                if (cStr && isClassMatch(cStr, targetClass)) {
                     const key = `${d}-${p}`;
+                    const subj = row[`s${d}${p}`] || '';
                     if (!cells[key]) {
                         cells[key] = {
-                            subject: row[`s${d}${p}`] || '',
+                            subject: subj,
                             items: [],
                             isLocked: row[`l${d}${p}`] === 1 || row[`l${d}${p}`] === '1'
                         };
@@ -328,18 +365,19 @@ function displayClassSchedule(className) {
     });
 
     const titleEl = document.getElementById('scheduleTitle');
-    if (titleEl) titleEl.textContent = `${className} 課表`;
+    if (titleEl) titleEl.textContent = `${targetClass} 課表`;
 
     const container = document.getElementById('scheduleTableContainer');
-    if (container) container.innerHTML = buildScheduleTable(cells, 'class', className);
+    if (container) container.innerHTML = buildScheduleTable(cells, 'class', targetClass);
 
     showView('resultView');
 }
 
 function displayTeacherSchedule(teacherName) {
-    lastQueryTarget = teacherName;
+    const tName = String(teacherName).trim();
+    lastQueryTarget = tName;
     const cells = {};
-    const row = scheduleData.find(r => (r.teachername || r.teacherName) === teacherName);
+    const row = scheduleData.find(r => r.teachername === tName);
 
     if (row) {
         const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -351,7 +389,7 @@ function displayTeacherSchedule(teacherName) {
                     const key = `${d}-${p}`;
                     cells[key] = {
                         subject: subj || '',
-                        items: cStr ? cStr.split(/[\s/,\u3001]+/) : [],
+                        items: cStr ? String(cStr).split(/[\s/,\u3001]+/).map(normalizeClassName).filter(Boolean) : [],
                         isLocked: row[`l${d}${p}`] === 1 || row[`l${d}${p}`] === '1'
                     };
                 }
@@ -360,10 +398,10 @@ function displayTeacherSchedule(teacherName) {
     }
 
     const titleEl = document.getElementById('scheduleTitle');
-    if (titleEl) titleEl.textContent = `${teacherName} 老師課表`;
+    if (titleEl) titleEl.textContent = `${tName} 老師課表`;
 
     const container = document.getElementById('scheduleTableContainer');
-    if (container) container.innerHTML = buildScheduleTable(cells, 'teacher', teacherName);
+    if (container) container.innerHTML = buildScheduleTable(cells, 'teacher', tName);
 
     showView('resultView');
 }
@@ -375,24 +413,25 @@ function getSameSubjectFreeTeachers(subject, day, period) {
     const candidateTeachers = subjectTeachers[baseSubj] || [];
 
     return candidateTeachers.filter(tName => {
-        const row = scheduleData.find(r => (r.teachername || r.teacherName) === tName);
+        const row = scheduleData.find(r => r.teachername === tName);
         if (!row) return false;
         const subjInSlot = row[`s${day}${period}`];
-        return !subjInSlot || subjInSlot.trim() === '';
+        return !subjInSlot || String(subjInSlot).trim() === '';
     });
 }
 
 function getClassFreeTeachers(className, day, period) {
     if (!className) return [];
+    const targetClass = normalizeClassName(className);
     const PERIODS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     const classTeachers = new Set();
     scheduleData.forEach(row => {
-        const tName = row.teachername || row.teacherName;
+        const tName = row.teachername;
         for (let d = 1; d <= 5; d++) {
             for (let p of PERIODS) {
                 const cStr = row[`c${d}${p}`];
-                if (cStr && isClassMatch(cStr, className) && tName) {
+                if (cStr && isClassMatch(cStr, targetClass) && tName) {
                     classTeachers.add(tName);
                 }
             }
@@ -400,10 +439,10 @@ function getClassFreeTeachers(className, day, period) {
     });
 
     return [...classTeachers].filter(tName => {
-        const row = scheduleData.find(r => (r.teachername || r.teacherName) === tName);
+        const row = scheduleData.find(r => r.teachername === tName);
         if (!row) return false;
         const subjInSlot = row[`s${day}${period}`];
-        return !subjInSlot || subjInSlot.trim() === '';
+        return !subjInSlot || String(subjInSlot).trim() === '';
     }).sort();
 }
 
