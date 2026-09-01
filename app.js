@@ -25,28 +25,67 @@ function normalizeSubject(subj) {
     return subj.trim();
 }
 
+// ── 視圖與頁面切換邏輯 ─────────────────────────────────────────
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(el => {
-        el.classList.remove('active', 'result-active');
         el.style.display = 'none';
+        el.classList.remove('active', 'result-active');
     });
+
     const target = document.getElementById(viewId);
     if (target) {
-        if (viewId === 'resultView') {
+        if (viewId === 'loginView') {
+            target.style.display = 'flex';
+        } else if (viewId === 'resultView') {
+            target.style.display = 'block';
             target.classList.add('result-active');
         } else {
-            target.classList.add('active');
+            target.style.display = 'block';
         }
-        target.style.display = '';
+        target.classList.add('active');
     }
 }
 
-// ── 學期選單初始化（解決登入頁面空白問題）────────────────────
+// ── 登入 / 登出事件處理 ────────────────────────────────────────
+function handleLogin(e) {
+    if (e) e.preventDefault(); // 阻止表單預設刷新頁面
+
+    const semesterSelect = document.getElementById('semesterSelect');
+    const selectedSemester = semesterSelect ? semesterSelect.value : '';
+
+    if (!selectedSemester) {
+        alert('請選擇學期！');
+        return;
+    }
+
+    // 更新查詢頁面的學期 Badge 標籤
+    const currentSemEl = document.getElementById('currentSemester');
+    if (currentSemEl) {
+        currentSemEl.textContent = selectedSemester;
+    }
+
+    // 切換至查詢視圖
+    showView('queryView');
+}
+
+function logout() {
+    showView('loginView');
+}
+
+function goBack() {
+    showView('queryView');
+}
+
+function showQueryView() {
+    showView('queryView');
+}
+
+// ── 學期選單初始化 ─────────────────────────────────────────────
 function populateSemesterSelect() {
     const semesterSelect = document.getElementById('semesterSelect');
     if (!semesterSelect) return;
 
-    semesterSelect.innerHTML = ''; // 清空原有選項
+    semesterSelect.innerHTML = ''; // 清空選項
 
     if (typeof CONFIG !== 'undefined' && CONFIG.SEMESTERS) {
         Object.keys(CONFIG.SEMESTERS).forEach(sem => {
@@ -57,7 +96,7 @@ function populateSemesterSelect() {
         });
     }
 
-    // 防呆機制：若無設定則預設加入 115-1
+    // 防呆：若無設定則補上預設選項
     if (semesterSelect.options.length === 0) {
         const defaultOpt = document.createElement('option');
         defaultOpt.value = '115-1';
@@ -104,7 +143,7 @@ function getClassFreeTeachers(className, day, period) {
     }).sort();
 }
 
-// ── 課表表格繪製與渲染 ─────────────────────────────────────────
+// ── 課表表格渲染 (含左右選單) ──────────────────────────────────
 function buildScheduleTable(cells, mode, currentTargetName) {
     const periods = (typeof CONFIG !== 'undefined' && CONFIG.PERIOD_TIMES) || [];
     const hasEarly = Object.keys(cells).some(k => k.endsWith('-0'));
@@ -157,7 +196,7 @@ function renderCell(cell, mode, day, period, currentTargetName) {
     const lockBadge = cell.isLocked ? `<span class="lock-tag" title="此課程已綁定，不可調課">🔒 綁課</span>` : '';
     const cellClass = cell.isLocked ? 'td-cell cell-locked' : 'td-cell';
 
-    // ── 左框：同科目空堂教師 ──
+    // ── 建立左框：同科目空堂教師 ──
     const sameSubjFree = getSameSubjectFreeTeachers(cell.subject, day, period);
     let leftSelect = `<select class="sub-select left-select" onchange="if(this.value) displayTeacherSchedule(this.value)" title="同科目空堂代課教師">
         <option value="">代(科)</option>`;
@@ -166,7 +205,7 @@ function renderCell(cell, mode, day, period, currentTargetName) {
     });
     leftSelect += `</select>`;
 
-    // ── 右框：同班級其他任課教師空堂 ──
+    // ── 建立右框：同班級其他任課教師空堂 ──
     const targetClass = mode === 'class' ? currentTargetName : (cell.items[0] || '');
     const classFree = getClassFreeTeachers(targetClass, day, period);
     let rightSelect = `<select class="sub-select right-select" onchange="if(this.value) displayTeacherSchedule(this.value)" title="同班級任課教師空堂代課">
@@ -188,15 +227,27 @@ function renderCell(cell, mode, day, period, currentTargetName) {
     </td>`;
 }
 
-// ── 頁面初始化載入 ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    // 設置網頁 Title
-    const schoolName = (typeof CONFIG !== 'undefined' && CONFIG.SCHOOL_NAME) ? CONFIG.SCHOOL_NAME : '民雄國中';
-    document.title = `${schoolName} 課表查詢`;
+// 列印功能
+function printSchedule() {
+    window.print();
+}
 
-    // 載入學期選項
+// ── 頁面初始化與事件綁定 ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. 設定網頁 Title
+    if (typeof CONFIG !== 'undefined' && CONFIG.SCHOOL_NAME) {
+        document.title = `${CONFIG.SCHOOL_NAME} 課表查詢`;
+    }
+
+    // 2. 初始化學期下拉選單
     populateSemesterSelect();
 
-    // 顯示登入畫面
+    // 3. 綁定登入表單事件
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    // 4. 顯示登入畫面
     showView('loginView');
 });
