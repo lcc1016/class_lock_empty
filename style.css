@@ -7,8 +7,8 @@
 :root {
     --primary-color: #3b82f6;
     --primary-hover: #2563eb;
-    --secondary-color: #10b981;
-    --secondary-hover: #059669;
+    --amber-color: #d97706;        /* 該班其他科目主題色 (橘) */
+    --amber-hover: #b45309;
     --bg-color: #f0fdf4;
     --card-bg: #ffffff;
     --text-color: #1f2937;
@@ -419,7 +419,7 @@ body {
     vertical-align: middle;
 }
 
-/* ── 代課教師彈出視窗 (Modal) 與分組樣式 ─────────────────── */
+/* ── 代課教師彈出視窗 (Modal) 與標籤顏色設定 ───────────── */
 .modal {
     display: none; 
     position: fixed;
@@ -440,7 +440,7 @@ body {
 .modal-content {
     background: #ffffff;
     width: 90%;
-    max-width: 520px;
+    max-width: 500px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     overflow: hidden;
@@ -478,30 +478,18 @@ body {
     overflow-y: auto;
 }
 
-.sub-group-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #334155;
-    margin-bottom: 8px;
-}
-
-.no-teacher-msg {
-    font-size: 0.85rem;
-    color: #94a3b8;
-    margin-bottom: 12px;
-    padding-left: 4px;
-}
-
+/* 基礎標籤樣式 */
 .btn-teacher-tag {
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     font-weight: 500;
     font-size: 0.88rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    margin: 3px;
 }
 
-/* 主科目空堂教師（藍色系） */
+/* 1. 【原科目】空堂教師標籤（藍色） */
 .btn-primary-subject {
     border: 1px solid var(--primary-color);
     background-color: #eff6ff;
@@ -513,21 +501,16 @@ body {
     color: #ffffff;
 }
 
-/* 該班其他科目空堂教師（綠色系） */
+/* 2. 【該班其他科目】空堂教師標籤（橘色） */
 .btn-other-subject {
-    border: 1px solid var(--secondary-color);
-    background-color: #ecfdf5;
-    color: #047857;
+    border: 1px solid var(--amber-color);
+    background-color: #fffbe2;
+    color: var(--amber-color);
 }
 
 .btn-other-subject:hover {
-    background-color: var(--secondary-color);
+    background-color: var(--amber-color);
     color: #ffffff;
-}
-
-.teacher-subj-badge {
-    font-size: 0.75rem;
-    opacity: 0.85;
 }
 
 @keyframes modalFadeIn {
@@ -541,7 +524,7 @@ body {
     }
 }
 
-/* ── 行動裝置 RWD (Mobile < 600px 直式 full-screen 6ch 模式) ─ */
+/* ── 行動裝置 RWD (Mobile < 600px 滿版 6ch 模式) ───────── */
 @media screen and (max-width: 600px) {
     body {
         padding: 4px;
