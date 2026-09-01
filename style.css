@@ -1,0 +1,39 @@
+/* 格子容器排版 */
+.cell-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+    width: 100%;
+}
+
+.cell-content {
+    flex: 1;
+    text-align: center;
+}
+
+/* 代課下拉選單樣式 */
+.sub-select {
+    font-size: 0.75rem;
+    padding: 2px 1px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background-color: #f8fafc;
+    color: #475569;
+    cursor: pointer;
+    max-width: 52px;
+    outline: none;
+}
+
+.sub-select:hover {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+}
+
+.left-select {
+    border-color: #fca5a5; /* 淡紅框，對應左框 */
+}
+
+.right-select {
+    border-color: #93c5fd; /* 淡藍框，對應右框 */
+}
