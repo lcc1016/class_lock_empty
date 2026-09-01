@@ -550,7 +550,39 @@ body {
         transform: translateY(0);
     }
 }
+/* ── 年級標籤彩色膠囊方框樣式 ─────────────────────────── */
+.form-group label.grade-label {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
 
+/* 七年級：淡藍底藍字 */
+.form-group label.grade-7 {
+    background-color: #e0f2fe;
+    color: #0284c7;
+}
+
+/* 八年級：淡紫底紫字 */
+.form-group label.grade-8 {
+    background-color: #eef2ff;
+    color: #6366f1;
+}
+
+/* 九年級：淡綠底綠字 */
+.form-group label.grade-9 {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+/* 特殊班 / 其他：淡黃底黃字 */
+.form-group label.grade-special {
+    background-color: #fef9c3;
+    color: #ca8a04;
+}
 /* ── 行動裝置 RWD (Mobile < 600px 極致優化不裁切模式) ─────── */
 @media screen and (max-width: 600px) {
     body {
