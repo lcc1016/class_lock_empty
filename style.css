@@ -685,13 +685,12 @@ body {
         margin-top: 1px;
     }
 
-    .lock-tag {
-        display: block !important;
-        font-size: 0.48rem !important;
-        padding: 0px 1px !important;
-        margin: 1px auto 0 auto !important;
-        width: fit-content;
-        line-height: 1.0;
+.lock-tag {
+        display: inline-block !important;
+        font-size: inherit !important;   /* 繼承手機版科目的 0.7rem 字體大小 */
+        padding: 1px 3px !important;
+        margin: 1px 0 0 2px !important;
+        line-height: 1.1;
     }
 }
 /* 將綁課標籤的字體大小調整為與科目名稱相同 */
