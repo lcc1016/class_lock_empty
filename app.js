@@ -564,6 +564,11 @@ function renderCell(cell, mode, day, period, currentClassName = '') {
 function showAvailableTeachers(subject, day, period, className) {
     const baseSubject = normalizeSubject(subject);
     
+    // ⬇⬇⬇【未來新增/修改「不顯示其他科目空堂教師」名單位置】⬇⬇⬇
+    // 請在此陣列中填寫不希望出現在「該班其他科目空堂教師」列表中的教師姓名
+    const EXCLUDED_OTHER_SUBJECT_TEACHERS = ["李漢堂", "陳綉燕", "何嘉峻","蔡宜婷","陳綉燕","周億琳","張孟傑","莊宗儒","許湫萍","邱順瑜","陳群靜","高健雄","吳瑩娟","張介凡","Divina","Jun","侯旻汶","何晚居","吳相禹","吳月雲","蕭因伶","張芸榛","國代","尤靖瑜","張孟傑","張詠濬","李雪菱","林宇涵","林宜潔","林菀婷","洪楷哲","洪顧展","洪齊成","特教代","盧洪恩","簡晟軒","莊竣麟","董祐鈞","蔡晨虹","蔡佩珊","蔡鈺萱","許錦川","賴泓文","趙爾梅","郭勝綸","郭泰延","鄭珮辰","鄭白苹","鄭耀宗","陳國川"];
+    // ⬆⬆⬆【未來新增/修改名單位置 END】⬆⬆⬆
+
     // 1. 找出當前點擊科目的空堂教師 (主要)
     const primaryTeachers = (subjectTeachers[baseSubject] || []).filter(teacher => {
         const row = scheduleData.find(r => r.teachername === teacher);
@@ -584,8 +589,13 @@ function showAvailableTeachers(subject, day, period, className) {
                         const subj = row[`s${d}${p}`];
                         const normSubj = normalizeSubject(subj);
                         
-                        // 排除當前科目，且排除已經是主要科目的教師
-                        if (normSubj && normSubj !== baseSubject && !primaryTeachers.includes(row.teachername)) {
+                        // 排除當前科目、排除主要科目教師、且【排除不顯示名單內的教師】
+                        if (
+                            normSubj && 
+                            normSubj !== baseSubject && 
+                            !primaryTeachers.includes(row.teachername) &&
+                            !EXCLUDED_OTHER_SUBJECT_TEACHERS.includes(row.teachername) // 👈 排除過濾條件
+                        ) {
                             // 檢查該教師在該 day/period 是否為空堂
                             if (!row[`s${day}${period}`]) {
                                 if (!otherTeachersMap.has(row.teachername)) {
