@@ -352,7 +352,8 @@ function setupGradeSelects() {
     };
     Object.entries(gradeMap).forEach(([id, others]) => {
         const el = document.getElementById(id);
-        if (!el) return;
+        if (!el || el.dataset.bound) return;
+        el.dataset.bound = "true";
         el.addEventListener('change', () => {
             if (el.value) others.forEach(oid => {
                 const oe = document.getElementById(oid);
@@ -453,9 +454,9 @@ function displayClassSchedule(className) {
     
     const numClass = className.replace(/\D/g, '');
     const hmTeacher = homeroomData[className] || homeroomData[numClass] || '';
-    const hmHtml = hmTeacher ? `<span style="font-size: 1.1rem; color: var(--text-dim, #666); margin-left: 0.5rem; font-weight: 500;">(導師：${escHtml(hmTeacher)})</span>` : '';
+    const hmHtml = hmTeacher ? `<span style="font-size: 1.1rem; color: var(--text-dim, #666); margin-left: 0.5rem; font-weight: 500;">(導師：${escText(hmTeacher)})</span>` : '';
     
-    if (scheduleTitle) scheduleTitle.innerHTML = `${className} 班課表 ${hmHtml}`;
+    if (scheduleTitle) scheduleTitle.innerHTML = `${escText(className)} 班課表 ${hmHtml}`;
     if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'class', className);
 
     showView('resultView');
@@ -489,7 +490,7 @@ function displayTeacherSchedule(teacherName) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-    建構課表 HTML
+    建構課表 HTML (包含午休)
 ═══════════════════════════════════════════════════════════ */
 function buildScheduleTable(cells, mode, currentClassName = '') {
     const periods   = (typeof CONFIG !== 'undefined' && CONFIG.PERIOD_TIMES) || [];
@@ -500,11 +501,12 @@ function buildScheduleTable(cells, mode, currentClassName = '') {
     DAYS.forEach(d => html += `<th>${d}</th>`);
     html += '</tr></thead><tbody>';
 
+    // 1. 早自習
     if (hasEarly) {
         const et = periods[0] || { start: '07:35', end: '08:10' };
         html += `<tr><td class="td-period">
             <div class="period-num">早自習</div>
-            <div class="period-time">${et.start}<br>${et.end}</div>
+            <div class="period-time">${escText(et.start)}<br>${escText(et.end)}</div>
         </td>`;
         for (let d = 1; d <= 5; d++) {
             html += renderCell(cells[`${d}-0`], mode, d, 0, currentClassName);
@@ -512,11 +514,24 @@ function buildScheduleTable(cells, mode, currentClassName = '') {
         html += '</tr>';
     }
 
+    // 2. 正課 1 ~ 8 節 (包含午休)
     for (let p = 1; p <= 8; p++) {
+        // ── 插入午休列（於第 4 節後、第 5 節前） ──
+        if (p === 5) {
+            const lunchTime = periods['lunch'] || { start: '12:20', end: '13:00' };
+            html += `<tr class="tr-break">
+                <td class="td-period">
+                    <div class="period-num">午休</div>
+                    <div class="period-time">${escText(lunchTime.start)}<br>${escText(lunchTime.end)}</div>
+                </td>
+                <td colspan="5" class="td-break-content">午休</td>
+            </tr>`;
+        }
+
         const pt = periods[p] || { start: '', end: '' };
         html += `<tr><td class="td-period"><div class="period-num">第${p}節</div>`;
         if (pt.start && pt.start !== '——') {
-            html += `<div class="period-time">${pt.start}<br>${pt.end}</div>`;
+            html += `<div class="period-time">${escText(pt.start)}<br>${escText(pt.end)}</div>`;
         }
         html += '</td>';
         for (let d = 1; d <= 5; d++) {
@@ -535,19 +550,19 @@ function renderCell(cell, mode, day, period, currentClassName = '') {
     // 教師/班級連結
     const itemsHtml = (cell.items || []).map(item => {
         if (mode === 'class') {
-            return `<div class="cell-link" onclick="displayTeacherSchedule('${escHtml(item)}')">${item}</div>`;
+            return `<div class="cell-link" onclick="displayTeacherSchedule('${escJsParam(item)}')">${escText(item)}</div>`;
         } else {
-            return `<div class="cell-link" onclick="displayClassSchedule('${escHtml(item)}')">${item}</div>`;
+            return `<div class="cell-link" onclick="displayClassSchedule('${escJsParam(item)}')">${escText(item)}</div>`;
         }
     }).join(' ');
 
     const lockBadge = cell.isLocked ? `<span class="lock-tag" title="此課程已綁定，不可調課">🔒 綁課</span>` : '';
     const cellClass = cell.isLocked ? 'td-cell cell-locked' : 'td-cell';
 
-    let subjHtml = `<div class="cell-subject">${cell.subject} ${lockBadge}</div>`;
+    let subjHtml = `<div class="cell-subject">${escText(cell.subject)} ${lockBadge}</div>`;
     if (mode === 'class') {
-        const subjClick = `onclick="showAvailableTeachers('${escHtml(cell.subject)}', ${day}, ${period}, '${escHtml(currentClassName)}')"`
-        subjHtml = `<div class="cell-subject clickable-subject" ${subjClick} title="點擊檢視該節空堂教師">${cell.subject} ${lockBadge}</div>`;
+        const subjClick = `onclick="showAvailableTeachers('${escJsParam(cell.subject)}', ${day}, ${period}, '${escJsParam(currentClassName)}')"`
+        subjHtml = `<div class="cell-subject clickable-subject" ${subjClick} title="點擊檢視該節空堂教師">${escText(cell.subject)} ${lockBadge}</div>`;
     }
 
     return `<td class="${cellClass}">
@@ -564,10 +579,16 @@ function renderCell(cell, mode, day, period, currentClassName = '') {
 function showAvailableTeachers(subject, day, period, className) {
     const baseSubject = normalizeSubject(subject);
     
-    // ⬇⬇⬇【未來新增/修改「不顯示其他科目空堂教師」名單位置】⬇⬇⬇
-    // 請在此陣列中填寫不希望出現在「該班其他科目空堂教師」列表中的教師姓名
-    const EXCLUDED_OTHER_SUBJECT_TEACHERS = ["李漢堂", "陳綉燕", "何嘉峻","蔡宜婷","陳綉燕","周億琳","張孟傑","莊宗儒","許湫萍","邱順瑜","陳群靜","高健雄","吳瑩娟","張介凡","Divina","Jun","侯旻汶","何晚居","吳相禹","吳月雲","蕭因伶","張芸榛","國代","尤靖瑜","張孟傑","張詠濬","李雪菱","林宇涵","林宜潔","林菀婷","洪楷哲","洪顧展","洪齊成","特教代","盧洪恩","簡晟軒","莊竣麟","董祐鈞","蔡晨虹","蔡佩珊","蔡鈺萱","許錦川","賴泓文","趙爾梅","郭勝綸","郭泰延","鄭珮辰","鄭白苹","鄭耀宗","陳國川","張曼玲"];
-    // ⬆⬆⬆【未來新增/修改名單位置 END】⬆⬆⬆
+    // ⬇⬇⬇【排除名單（改用 Set 加快比對速度，並已去重）】⬇⬇⬇
+    const EXCLUDED_OTHER_SUBJECT_TEACHERS = new Set([
+        "李漢堂", "陳綉燕", "何嘉峻", "蔡宜婷", "周億琳", "張孟傑", "莊宗儒", 
+        "許湫萍", "邱順瑜", "陳群靜", "高健雄", "吳瑩娟", "張介凡", "Divina", 
+        "Jun", "侯旻汶", "何晚居", "吳相禹", "吳月雲", "蕭因伶", "張芸榛", 
+        "國代", "尤靖瑜", "張詠濬", "李雪菱", "林宇涵", "林宜潔", "林菀婷", 
+        "洪楷哲", "洪顧展", "洪齊成", "特教代", "盧洪恩", "簡晟軒", "莊竣麟", 
+        "董祐鈞", "蔡晨虹", "蔡佩珊", "蔡鈺萱", "許錦川", "賴泓文", "趙爾梅", 
+        "郭勝綸", "郭泰延", "鄭珮辰", "鄭白苹", "鄭耀宗", "陳國川", "張曼玲"
+    ]);
 
     // 1. 找出當前點擊科目的空堂教師 (主要)
     const primaryTeachers = (subjectTeachers[baseSubject] || []).filter(teacher => {
@@ -594,7 +615,7 @@ function showAvailableTeachers(subject, day, period, className) {
                             normSubj && 
                             normSubj !== baseSubject && 
                             !primaryTeachers.includes(row.teachername) &&
-                            !EXCLUDED_OTHER_SUBJECT_TEACHERS.includes(row.teachername) // 👈 排除過濾條件
+                            !EXCLUDED_OTHER_SUBJECT_TEACHERS.has(row.teachername)
                         ) {
                             // 檢查該教師在該 day/period 是否為空堂
                             if (!row[`s${day}${period}`]) {
@@ -624,19 +645,19 @@ function showAvailableTeachers(subject, day, period, className) {
     if (modalBody) {
         let html = '';
 
-        // 分組 1：同科目空堂教師 (藍色系)
-        html += `<div class="sub-group-title">【${baseSubject}】科空堂教師：</div>`;
+        // 分組 1：同科目空堂教師
+        html += `<div class="sub-group-title">【${escText(baseSubject)}】科空堂教師：</div>`;
         if (primaryTeachers.length === 0) {
             html += `<p class="no-teacher-msg">無同科空堂教師</p>`;
         } else {
             html += '<div class="teacher-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:12px;">';
             primaryTeachers.forEach(t => {
-                html += `<button class="btn btn-teacher-tag btn-primary-subject" onclick="selectModalTeacher('${escHtml(t)}')">${t}</button>`;
+                html += `<button class="btn btn-teacher-tag btn-primary-subject" onclick="selectModalTeacher('${escJsParam(t)}')">${escText(t)}</button>`;
             });
             html += '</div>';
         }
 
-        // 分組 2：該班其他科目空堂教師 (綠色系)
+        // 分組 2：該班其他科目空堂教師
         html += `<div class="sub-group-title mt-3">該班其他科目空堂教師：</div>`;
         if (otherTeachersMap.size === 0) {
             html += `<p class="no-teacher-msg">無其他科目空堂教師</p>`;
@@ -644,7 +665,7 @@ function showAvailableTeachers(subject, day, period, className) {
             html += '<div class="teacher-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">';
             otherTeachersMap.forEach((subjs, t) => {
                 const subjTags = Array.from(subjs).join('、');
-                html += `<button class="btn btn-teacher-tag btn-other-subject" onclick="selectModalTeacher('${escHtml(t)}')" title="${subjTags}">${t} <span class="teacher-subj-badge">(${subjTags})</span></button>`;
+                html += `<button class="btn btn-teacher-tag btn-other-subject" onclick="selectModalTeacher('${escJsParam(t)}')" title="${escAttr(subjTags)}">${escText(t)} <span class="teacher-subj-badge">(${escText(subjTags)})</span></button>`;
             });
             html += '</div>';
         }
@@ -673,8 +694,25 @@ function closeSubModal(event) {
     }
 }
 
-function escHtml(str) {
-    return (str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+/* ── 安全轉義工具函式 ─────────────────────────────────────── */
+function escText(str) {
+    return (str || '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function escAttr(str) {
+    return escText(str)
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function escJsParam(str) {
+    return (str || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"');
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -687,10 +725,14 @@ function printSchedule() {
     const semLabel  = document.getElementById('currentSemester')?.textContent || '';
 
     const win = window.open('', '_blank', 'width=1100,height=750');
-    if (!win) return;
+    if (!win) {
+        alert('請允許開啟彈出式視窗以進行列印功能。');
+        return;
+    }
+    
     win.document.write(`<!DOCTYPE html>
 <html lang="zh-TW"><head><meta charset="UTF-8">
-<title>${title}</title>
+<title>${escText(title)}</title>
 <style>
   @page { size: A4 landscape; margin: 1cm; }
   body { font-family: 'Noto Sans TC', sans-serif; font-size: 10pt; }
@@ -716,10 +758,12 @@ function printSchedule() {
       margin-left: 3px;
       font-weight: bold;
   }
+  tr.tr-break { background-color: #f8f9fa; }
+  .td-break-content { text-align: center; color: #666; font-size: 9pt; background-color: #f0f0f0; }
 </style>
 </head><body>
-<h2>${title}</h2>
-<p class="sem">${semLabel}</p>
+<h2>${escText(title)}</h2>
+<p class="sem">${escText(semLabel)}</p>
 ${tableHTML}
 <script>window.onload=()=>{window.print();window.close();}<\/script>
 </body></html>`);

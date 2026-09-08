@@ -11,12 +11,14 @@
     --amber-hover: #b45309;        /* 設定橘色按鈕懸停時的深橘色 */
     --bg-color: #e0f2fe;            /* 設定整體網頁的淡藍色背景 */
     --card-bg: #ffffff;            /* 設定白色卡片容器背景色 */
-    --text-color: #1f2937;         /* 設定主要文字為深灰色 */
+    --text-color: #1f2937;          /* 設定主要文字為深灰色 */
     --text-dim: #6b7280;           /* 設定次要/淡化文字為中灰色 */
     --border-color: #e2e8f0;       /* 設定通用邊框為淺灰色 */
     --locked-bg: #fff1f2;          /* 設定綁課儲存格的淡粉紅色背景 */
     --locked-border: #fca5a5;      /* 設定綁課儲存格的粉紅邊框 */
     --locked-text: #ef4444;        /* 設定綁課提示文字為鮮紅色 */
+    --lunch-bg: #f0fdf4;           /* 設定午休/午餐時間的淡綠色背景 */
+    --lunch-text: #15803d;         /* 設定午休/午餐時間的深綠色文字 */
 }
 
 * { /* 選取頁面上所有的 HTML 元素 */
@@ -45,7 +47,7 @@ body { /* 設定網頁主體的整體樣式 */
     background: rgba(255, 255, 255, 0.85); /* 設定半透明白色背景 */
     z-index: 10000;                        /* 設定極高的層級以確保蓋在最上層 */
     align-items: center;                   /* 垂直居中對齊內部元素 */
-    justify-content: center;                /* 水平居中對齊內部元素 */
+    justify-content: center;               /* 水平居中對齊內部元素 */
     flex-direction: column;                /* 讓內部元素垂直排列 */
     gap: 12px;                             /* 設定內部元素之間的間距為 12 像素 */
     font-weight: bold;                     /* 設定載入文字為粗體 */
@@ -56,9 +58,9 @@ body { /* 設定網頁主體的整體樣式 */
 }
 
 .spinner { /* 設定加載中的轉圈圈圖示 */
-    width: 40px;                                 /* 設定轉圈圖示寬度為 40 像素 */
-    height: 40px;                                /* 設定轉圈圖示高度為 40 像素 */
-    border: 4px solid #f3f3f3;                   /* 設定底層圓環為淺灰色實線邊框 */
+    width: 40px;                                  /* 設定轉圈圖示寬度為 40 像素 */
+    height: 40px;                                 /* 設定轉圈圖示高度為 40 像素 */
+    border: 4px solid #f3f3f3;                    /* 設定底層圓環為淺灰色實線邊框 */
     border-top: 4px solid var(--primary-color);  /* 設定頂部圓環為主視覺藍色實線邊框 */
     border-radius: 50%;                          /* 設定為圓形 */
     animation: spin 1s linear infinite;          /* 套用 spin 動畫，1 秒一圈無限循環 */
@@ -94,7 +96,7 @@ body { /* 設定網頁主體的整體樣式 */
 /* ── 卡片容器樣式 ───────────────────────────────────────── */
 .login-card, .query-card, .result-card { /* 登入、查詢與結果卡片共同樣式 */
     background: var(--card-bg);                 /* 設定白色卡片背景 */
-    padding: 30px;                              /* 設定卡片內部邊距為 30 像素 */
+    padding: 30px;                               /* 設定卡片內部邊距為 30 像素 */
     border-radius: 16px;                        /* 設定 16 像素的大圓角 */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* 設定輕微的卡片陰影效果 */
     width: 100%;                                /* 寬度佔滿父容器 */
@@ -158,8 +160,8 @@ body { /* 設定網頁主體的整體樣式 */
     display: inline-flex;          /* 設定為行內 Flex 佈局 */
     align-items: center;          /* 垂直居中對齊按鈕內容 */
     justify-content: center;       /* 水平居中對齊按鈕內容 */
-    padding: 9px 18px;             /* 設定內邊距：上下 9 像素、左右 18 像素 */
-    font-size: 1.1rem;             /* 設定字體大小為 1.1rem */
+    padding: 9px 18px;              /* 設定內邊距：上下 9 像素、左右 18 像素 */
+    font-size: 1.1rem;              /* 設定字體大小為 1.1rem */
     font-weight: 500;              /* 設定中等字體粗細 */
     border-radius: 6px;            /* 設定 6 像素圓角 */
     border: 1px solid transparent; /* 預設透明邊框 */
@@ -245,13 +247,13 @@ body { /* 設定網頁主體的整體樣式 */
 }
 
 .tab-btn { /* 頁籤切換按鈕 */
-    padding: 10px 20px;                   /* 設定內邊距：上下 10 像素、左右 20 像素 */
-    border: none;                         /* 移除邊框 */
-    background: none;                     /* 移除背景 */
-    font-size: 1.2rem;                    /* 設定字體大小為 1.2rem */
-    font-weight: 600;                     /* 設定字體加粗 */
-    color: var(--text-dim);               /* 套用未選取時的淡化灰色 */
-    cursor: pointer;                      /* 設定游標為手型 */
+    padding: 10px 20px;                    /* 設定內邊距：上下 10 像素、左右 20 像素 */
+    border: none;                          /* 移除邊框 */
+    background: none;                      /* 移除背景 */
+    font-size: 1.2rem;                     /* 設定字體大小為 1.2rem */
+    font-weight: 600;                      /* 設定字體加粗 */
+    color: var(--text-dim);                /* 套用未選取時的淡化灰色 */
+    cursor: pointer;                       /* 設定游標為手型 */
     border-bottom: 3px solid transparent; /* 預設透明底部指引線 */
     margin-bottom: -2px;                  /* 向下壓 2 像素覆蓋父容器的底部邊框 */
 }
@@ -317,10 +319,10 @@ body { /* 設定網頁主體的整體樣式 */
 
 /* ── 課表表格結構與橫向滾動 ─────────────────────────────── */
 .table-responsive { /* 課表表格響應式滾動容器 */
-    width: 100%;                           /* 寬度佔滿 100% */
-    overflow-x: auto;                      /* 當內容過寬時顯示橫向滾動條 */
-    -webkit-overflow-scrolling: touch;     /* 優化 iOS 行動裝置的滑動流暢度 */
-    border-radius: 12px;                   /* 設定表格外框圓角 12 像素 */
+    width: 100%;                            /* 寬度佔滿 100% */
+    overflow-x: auto;                       /* 當內容過寬時顯示橫向滾動條 */
+    -webkit-overflow-scrolling: touch;      /* 優化 iOS 行動裝置的滑動流暢度 */
+    border-radius: 12px;                    /* 設定表格外框圓角 12 像素 */
     border: 1px solid var(--border-color); /* 設定外框灰色實線 */
 }
 
@@ -366,6 +368,22 @@ body { /* 設定網頁主體的整體樣式 */
     color: #94a3b8;    /* 設定文字顏色為淺灰色 */
     line-height: 1.3;  /* 設定行高 1.3 */
     margin-top: 2px;   /* 設定頂部間距 2 像素 */
+}
+
+/* ── 午餐/午休時間專屬樣式 ─────────────────────────────── */
+.tr-lunch { /* 午餐/午休橫列 */
+    background-color: var(--lunch-bg); /* 設定淡綠/淡藍灰背景 */
+}
+
+.td-lunch { /* 午餐/午休跨欄儲存格 (colspan="5") */
+    background-color: var(--lunch-bg);
+    color: var(--lunch-text);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 2px; /* 稍微拉開字距提升質感 */
+    padding: 8px 4px;
+    text-align: center;
+    vertical-align: middle;
 }
 
 /* ── 課表儲存格與文字樣式 ───────────────────────────────── */
@@ -446,6 +464,14 @@ body { /* 設定網頁主體的整體樣式 */
     vertical-align: middle;        /* 垂直與鄰近文字對齊 */
 }
 
+/* 將綁課標籤的字體大小調整為與科目名稱相同 */
+.bind-tag, 
+.bound-badge, 
+.tag-bind {
+    font-size: inherit !important; /* 繼承父層（科目）的字體大小 */
+    vertical-align: middle;        /* 確保與科目文字垂直對齊 */
+}
+
 /* ── 代課教師彈出視窗 (Modal) ────────────────────────────── */
 .modal { /* 彈出視窗背景遮罩容器 */
     display: none;                      /* 預設隱藏 */
@@ -457,7 +483,7 @@ body { /* 設定網頁主體的整體樣式 */
     background-color: rgba(0, 0, 0, 0.4);/* 設定黑色半透明遮罩 */
     z-index: 9999;                      /* 高層級確保位於畫面上方 */
     align-items: center;                /* 垂直置中 Modal 卡片 */
-    justify-content: center;             /* 水平置中 Modal 卡片 */
+    justify-content: center;            /* 水平置中 Modal 卡片 */
 }
 
 .modal.show { /* 顯示彈出視窗狀態 */
@@ -475,10 +501,10 @@ body { /* 設定網頁主體的整體樣式 */
 }
 
 .modal-header { /* Modal 標題列區塊 */
-    padding: 1rem 1.25rem;                 /* 設定內邊距 */
-    background-color: #f8fafc;             /* 設定極淺灰背景 */
+    padding: 1rem 1.25rem;                  /* 設定內邊距 */
+    background-color: #f8fafc;              /* 設定極淺灰背景 */
     border-bottom: 1px solid #e2e8f0;      /* 設定底部分隔線 */
-    display: flex;                         /* Flex 佈局 */
+    display: flex;                          /* Flex 佈局 */
     justify-content: space-between;        /* 標題與關閉按鈕左右對齊 */
     align-items: center;                   /* 垂直置中 */
 }
@@ -520,7 +546,7 @@ body { /* 設定網頁主體的整體樣式 */
 .btn-primary-subject {
     border: 1px solid #7dd3fc;  /* 設定淡藍邊框 */
     background-color: #e0f2fe; /* 設定淺天藍背景 */
-    color: #0284c7;            /* 設定深天藍文字 */
+    color: #0284c7;             /* 設定深天藍文字 */
 }
 
 .btn-primary-subject:hover { /* 原科目教師膠囊懸停 */
@@ -532,7 +558,7 @@ body { /* 設定網頁主體的整體樣式 */
 .btn-other-subject {
     border: 1px solid #fde68a;  /* 設定淡黃/橘邊框 */
     background-color: #fffbe2; /* 設定淡黃背景 */
-    color: #d97706;            /* 設定暖橘色文字 */
+    color: #d97706;             /* 設定暖橘色文字 */
 }
 
 .btn-other-subject:hover { /* 其他科目教師膠囊懸停 */
@@ -554,7 +580,7 @@ body { /* 設定網頁主體的整體樣式 */
 /* ── 年級標籤彩色膠囊方框樣式 ─────────────────────────── */
 .form-group label.grade-label { /* 查詢選單年級分類 Label 通用樣式 */
     display: inline-block; /* 行內區塊元素 */
-    padding: 4px 12px;     /* 設定內邊距 */
+    padding: 4px 12px;      /* 設定內邊距 */
     border-radius: 6px;    /* 設定圓角 */
     font-weight: 700;      /* 設定粗體 */
     font-size: 0.9rem;     /* 設定字體大小 */
@@ -623,7 +649,7 @@ body { /* 設定網頁主體的整體樣式 */
         width: 100% !important;          /* 容器滿寬 */
         overflow-x: hidden !important;   /* 隱藏橫向滾動條，強制不裁切全擠在螢幕內 */
         padding: 0 !important;          /* 清空內邊距 */
-        margin: 0 !important;           /* 清空外邊距 */
+        margin: 0 !important;            /* 清空外邊距 */
     }
 
     .schedule-table {
@@ -646,6 +672,13 @@ body { /* 設定網頁主體的整體樣式 */
     .schedule-table td:not(.td-period) {
         width: calc((100% - 3ch) / 5) !important; /* 計算並等分扣除第一欄後的其餘 5 欄寬度 */
         padding: 2px 0 !important;               /* 縮小單元格邊距 */
+    }
+
+    /* 午休跨欄儲存格手機版適應 */
+    .td-lunch {
+        font-size: 0.75rem !important;  /* 手機版文字適度縮小 */
+        letter-spacing: 0px !important;  /* 壓縮字距防折行 */
+        padding: 4px 2px !important;    /* 縮小上下邊距 */
     }
 
     .schedule-table th,
@@ -694,12 +727,4 @@ body { /* 設定網頁主體的整體樣式 */
         margin: 1px 0 0 2px !important;   /* 調整外邊距 */
         line-height: 1.1;                 /* 緊湊行高 */
     }
-}
-
-/* 將綁課標籤的字體大小調整為與科目名稱相同 */
-.bind-tag, 
-.bound-badge, 
-.tag-bind {
-    font-size: inherit !important; /* 繼承父層（科目）的字體大小 */
-    vertical-align: middle;        /* 確保與科目文字垂直對齊 */
 }
