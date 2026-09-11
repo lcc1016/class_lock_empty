@@ -404,6 +404,15 @@ body { /* 設定網頁主體的整體樣式 */
     gap: 5px;               /* 內部元素間距 5 像素 */
 }
 
+/* 包含「科目名稱」與「綁課標籤」的行內對齊容器 */
+.subject-lock-wrapper {
+    display: inline-flex;       /* 使用行內 Flex 佈局使科目與標籤並排 */
+    align-items: center;       /* 垂直居中對齊 */
+    justify-content: center;  /* 水平居中對齊 */
+    gap: 4px;                  /* 科目與標籤間的間距 4 像素 */
+    flex-wrap: wrap;           /* 若空間不足允許自動換行 */
+}
+
 .cell-subject { /* 科目名稱字體樣式 */
     font-weight: 800;   /* 設定極粗字體 */
     font-size: 0.95rem; /* 設定字體大小 0.95rem */
@@ -420,7 +429,7 @@ body { /* 設定網頁主體的整體樣式 */
     opacity: 0.75; /* 滑鼠懸停時半透明效果 */
 }
 
-.cell-items-container { /* 多個教師/班級標籤容器 */
+.cell-items-container { /* 多個教師/班級/地點標籤容器 */
     display: flex;          /* 使用 Flex 佈局 */
     flex-wrap: wrap;        /* 超過寬度時自動換行 */
     gap: 4px;               /* 標籤之間間距 4 像素 */
@@ -445,6 +454,18 @@ body { /* 設定網頁主體的整體樣式 */
     color: #0369a1;            /* 加深文字藍色 */
 }
 
+/* 專科教室標籤樣式（深灰底、白字標示） */
+.cell-classroom {
+    display: inline-block;     /* 行內區塊元素 */
+    font-size: 0.78rem;        /* 字體大小 0.78rem */
+    font-weight: 600;          /* 中等粗體 */
+    color: #ffffff;            /* 白色文字 */
+    background-color: #475569; /* 深藍灰背景 */
+    padding: 2px 6px;          /* 內邊距：上下 2 像素、左右 6 像素 */
+    border-radius: 4px;        /* 圓角 4 像素 */
+    margin-top: 2px;           /* 上外邊距 2 像素 */
+}
+
 /* ── 綁課樣式 ───────────────────────────────────────────── */
 .td-cell.cell-locked { /* 被綁定的課表儲存格 */
     background-color: #fff1f2 !important; /* 強制設定為淡粉紅色背景 */
@@ -459,9 +480,9 @@ body { /* 設定網頁主體的整體樣式 */
     font-size: 0.8rem;             /* 設定字體大小為 0.8rem */
     padding: 2px 6px;              /* 設定內邊距：上下 2 像素、左右 6 像素 */
     border-radius: 6px;            /* 設定 6 像素圓角 */
-    margin-left: 4px;              /* 設定左側外邊距 4 像素 */
     font-weight: bold;             /* 設定粗體 */
     vertical-align: middle;        /* 垂直與鄰近文字對齊 */
+    white-space: nowrap;           /* 強制標籤內容不換行 */
 }
 
 /* 將綁課標籤的字體大小調整為與科目名稱相同 */
@@ -685,6 +706,7 @@ body { /* 設定網頁主體的整體樣式 */
     .schedule-table td,
     .cell-subject,
     .cell-link,
+    .cell-classroom,
     .period-num,
     .period-time {
         white-space: normal !important;     /* 允許自動換行 */
@@ -707,6 +729,10 @@ body { /* 設定網頁主體的整體樣式 */
         letter-spacing: -0.5px;        /* 縮小字距以利容納時間字串 */
     }
 
+    .subject-lock-wrapper {
+        gap: 2px !important;           /* 手機版縮小科目與標籤間的間距 */
+    }
+
     .cell-subject {
         font-size: 0.7rem !important;  /* 手機版科目名稱縮小為 0.7rem */
         font-weight: bold;
@@ -720,11 +746,65 @@ body { /* 設定網頁主體的整體樣式 */
         margin-top: 1px;
     }
 
+    .cell-classroom {
+        font-size: 0.6rem !important;  /* 手機版專科教室標籤縮小為 0.6rem */
+        padding: 1px 2px !important;   /* 壓縮標籤內邊距 */
+        line-height: 1.05;
+        margin-top: 1px;
+    }
+
     .lock-tag {
         display: inline-block !important; /* 改為行內區塊佈局 */
-        font-size: inherit !important;    /* 繼承手機版科目的 0.7rem 字體大小 */
-        padding: 1px 3px !important;      /* 調整內邊距 */
-        margin: 1px 0 0 2px !important;   /* 調整外邊距 */
+        font-size: 0.65rem !important;    /* 手機版綁課標籤字體大小微縮 */
+        padding: 1px 2px !important;      /* 調整內邊距 */
+        margin: 0 !important;             /* 清除外邊距以配合 wrapper */
         line-height: 1.1;                 /* 緊湊行高 */
     }
+}
+.visitor-box {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+#visitorCount {
+  font-weight: bold;
+  color: #2b6cb0; /* 經典藍色數字 */
+  margin-left: 4px;
+}
+/* 登入頁標頭排版 */
+.login-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;            /* 校徽與標題的間距 */
+    margin-bottom: 24px;  /* 與下方學期選擇的間距 */
+}
+
+/* 校徽圖片樣式 */
+.school-logo {
+    width: 64px;          /* 依需求調整大小 */
+    height: 64px;
+    object-fit: contain;  /* 保持校徽比例不變形 */
+    flex-shrink: 0;
+}
+
+/* 標題文字區塊 */
+.title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.system-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2d3748;
+}
+
+.system-subtitle {
+    margin: 4px 0 0 0;
+    font-size: 0.875rem;
+    color: #718096;
 }
