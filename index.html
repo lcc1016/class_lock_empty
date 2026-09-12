@@ -51,20 +51,19 @@
         <div class="loading-text">資料載入中，請稍候...</div>
     </div>
 
-    <!-- ══ 1. 登入視圖 ══════════════════════════════════════════ -->
+<!-- ══ 1. 登入視圖 ══════════════════════════════════════════ -->
 <div id="loginView" class="view-container active">
+    <!-- 白框卡片區 -->
     <div class="login-card">
-        <!-- 標頭組合區塊 -->
         <div class="login-header">
             <img src="logo.png" alt="校徽" class="school-logo">
             <div class="title-group">
-                <h1 class="system-title">民雄國中課表查詢系統</h1>
+                <h1 class="system-title">民雄國中<br>課表查詢系統</h1>
                 <p class="system-subtitle">請選擇學期並登入查詢</p>
             </div>
         </div>
 
         <form id="loginForm">
-            <!-- 保持原本的表單內容 -->
             <div class="form-group">
                 <label for="semesterSelect">學期選擇</label>
                 <select id="semesterSelect" class="form-control">
@@ -80,29 +79,40 @@
             </button>
         </form>
     </div>
+
+    <!-- 頁尾計數器（放在卡片外、登入視圖內的最下方） -->
+    <footer class="app-footer">
+        <div class="visitor-box">
+            👀 累積瀏覽人次：<span id="visitorCount">0</span>
+        </div>
+    </footer>
 </div>
 
-    <!-- ══ 2. 查詢面板視圖 ══════════════════════════════════════ -->
-    <div id="queryView" class="view-container">
-        <div class="query-card">
-            <div class="header-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <div>
-                    <span id="currentSemester" class="semester-badge"></span>
-                    <!-- 頂部瀏覽計數器 (已將 ID 修正為 monthViews，對應 app.js) -->
-                    <div class="visit-stats-badge" style="display: inline-flex;">
-                        <span>🗓️ 當月瀏覽：<strong id="monthViews">0</strong> 人次</span>
-                        <span>|</span>
-                        <span>📈 累計瀏覽：<strong id="totalViews">0</strong> 人次</span>
-                    </div>
+<!-- ══ 2. 查詢面板視圖 ══════════════════════════════════════ -->
+<div id="queryView" class="view-container">
+    <div class="query-card">
+        <!-- 頂部列：第一行放學期與登出，第二行放流量統計 -->
+        <div class="header-bar">
+            <div class="top-row">
+                <span id="currentSemester" class="semester-badge"></span>
+                <button class="btn btn-outline-danger btn-sm logout-btn" onclick="logout()">登出</button>
+            </div>
+            
+            <div class="stats-row">
+                <div class="visit-stats-badge">
+                    <span>🗓️ 當月瀏覽：<strong id="monthViews">0</strong> 人次</span>
+                    <span class="sep">|</span>
+                    <span>📈 累計瀏覽：<strong id="totalViews">0</strong> 人次</span>
                 </div>
-                <button class="btn btn-outline-danger btn-sm" onclick="logout()">登出</button>
             </div>
+        </div>
 
-            <div class="tab-header" style="margin-top: 15px;">
-                <button id="tabClass" class="tab-btn active" onclick="switchTab('class')">班級課表查詢</button>
-                <button id="tabTeacher" class="tab-btn" onclick="switchTab('teacher')">教師課表查詢</button>
-            </div>
-
+        <div class="tab-header" style="margin-top: 15px;">
+            <button id="tabClass" class="tab-btn active" onclick="switchTab('class')">班級課表查詢</button>
+            <button id="tabTeacher" class="tab-btn" onclick="switchTab('teacher')">教師課表查詢</button>
+        </div>
+        
+        <!-- 下方 tab-panel 保持不變 ... -->
             <!-- 班級查詢 Tab -->
             <div id="panelClass" class="tab-panel">
                 <div class="query-grid">
@@ -148,7 +158,6 @@
             </div>
         </div>
     </div>
-
     <!-- ══ 3. 課表結果視圖 ══════════════════════════════════════ -->
     <div id="resultView" class="view-container">
         <div class="result-card">
@@ -182,13 +191,6 @@
             </div>
         </div>
     </div>
-
-    <!-- 頁尾資訊與備用累積計數器 -->
-    <footer class="app-footer">
-        <div class="visitor-box">
-            👀 累積瀏覽人次：<span id="visitorCount">0</span>
-        </div>
-    </footer>
 
     <!-- 腳本引入 (維持放在 body 最下方) -->
     <script src="config.js"></script>
