@@ -1066,3 +1066,25 @@ label[for="teacherSelect"] {
         line-height: 1.1;              /* 行高 1.1 */
     }
 }
+
+/* 午休課表：依星期顯示實際科目與班級 */
+.td-lunch-cell {
+    background-color: #fff7ed !important;
+    border-color: #fed7aa !important;
+}
+.tr-break .td-lunch-cell .cell-subject { color: #9a3412; }
+.tr-break .td-lunch-cell .cell-link {
+    background-color: #ffedd5;
+    color: #9a3412;
+    border-color: #fdba74;
+}
+.tr-break .td-lunch-cell.td-empty {
+    background-color: var(--lunch-bg) !important;
+}
+@media print {
+    .td-lunch-cell {
+        background-color: #fff7ed !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

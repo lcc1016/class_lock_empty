@@ -362,8 +362,16 @@ function buildCategories() {
                         if (cls) allClasses.add(cls); 
                     }); 
                 } 
-            } 
-        } 
+            }
+            // 午休班級欄位：c1n～c5n
+            const lunchClass = row[`c${d}n`];
+            if (lunchClass) {
+                lunchClass.split(/[\s/]+/).forEach(cls => {
+                    cls = cls.trim();
+                    if (cls) allClasses.add(cls);
+                });
+            }
+        }
     }); 
 
     if (homeroomData) { 
@@ -410,9 +418,20 @@ function buildCategories() {
                         subjectTeachers[base].add(row.teachername); 
                     } 
                 }); 
-            } 
-        } 
-    }); 
+            }
+            // 午休科目欄位：s1n～s5n
+            const lunchSubject = row[`s${d}n`];
+            if (lunchSubject) {
+                lunchSubject.split('/').forEach(s => {
+                    const base = normalizeSubject(s);
+                    if (base) {
+                        if (!subjectTeachers[base]) subjectTeachers[base] = new Set();
+                        subjectTeachers[base].add(row.teachername);
+                    }
+                });
+            }
+        }
+    });
     Object.keys(subjectTeachers).forEach(k => { 
         subjectTeachers[k] = [...subjectTeachers[k]].sort(); 
     }); 
@@ -619,8 +638,17 @@ function displayClassSchedule(className) {
                         if (locked) cells[key].isLocked = true; 
                     } 
                 } 
-            } 
-        } 
+            }
+            // 午休：sDn 為科目、cDn 為班級
+            const lunchClassRaw = row[`c${d}n`] || '';
+            const lunchClasses = lunchClassRaw.split(/[\s/]+/).filter(Boolean);
+            const lunchSubject = row[`s${d}n`] || '';
+            if (lunchClasses.includes(className) && lunchSubject) {
+                const key = `${d}-n`;
+                if (!cells[key]) cells[key] = { subject: lunchSubject, items: [row.teachername], isLocked: false };
+                else if (!cells[key].items.includes(row.teachername)) cells[key].items.push(row.teachername);
+            }
+        }
     }); 
     
     const numClass = className.replace(/\D/g, ''); 
@@ -659,9 +687,15 @@ function displayTeacherSchedule(teacherName) {
 
                     cells[key] = { subject: subj, items: classes, isLocked: locked }; 
                 } 
-            } 
-        } 
-    } 
+            }
+            const lunchSubject = row[`s${d}n`] || '';
+            if (lunchSubject) {
+                const lunchClassRaw = row[`c${d}n`] || '';
+                const lunchClasses = lunchClassRaw.split(/[\s/]+/).filter(Boolean);
+                cells[`${d}-n`] = { subject: lunchSubject, items: lunchClasses, isLocked: false };
+            }
+        }
+    }
     if (scheduleTitle) scheduleTitle.textContent = `${teacherName} 老師課表`; 
     if (scheduleTableContainer) scheduleTableContainer.innerHTML = buildScheduleTable(cells, 'teacher'); 
 
@@ -701,8 +735,11 @@ function buildScheduleTable(cells, mode, currentClassName = '') {
                     <div class="period-num">午休</div>
                     <div class="period-time">${escText(lunchTime.start)}<br>${escText(lunchTime.end)}</div>
                 </td>
-                <td colspan="5" class="td-break-content">午休</td>
-            </tr>`; 
+                `;
+            for (let d = 1; d <= 5; d++) {
+                html += renderCell(cells[`${d}-n`], mode, d, 'n', currentClassName);
+            }
+            html += '</tr>'; 
         } 
 
         const pt = periods[p] || { start: '', end: '' }; 
@@ -762,10 +799,12 @@ function renderCell(cell, mode, day, period, currentClassName = '') {
     } 
 
     let subjHtml = `<div class="cell-subject">${escText(cell.subject)} ${lockBadge}</div>`; 
-    if (mode === 'class') { 
+    if (mode === 'class' && period !== 'n') { 
         const subjClick = `onclick="showAvailableTeachers('${escJsParam(cell.subject)}', ${day}, ${period}, '${escJsParam(currentClassName)}')"` 
         subjHtml = `<div class="cell-subject clickable-subject" ${subjClick} title="點擊檢視該節空堂教師">${escText(cell.subject)} ${lockBadge}</div>`; 
     } 
+
+    if (period === 'n') cellClass += ' td-lunch-cell';
 
     return `<td class="${cellClass}">
         <div class="cell-main-info">
