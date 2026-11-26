@@ -143,8 +143,9 @@ function goBack() {
     navHistory.pop(); 
     const prev = navHistory[navHistory.length - 1]; 
     navHistory.pop(); 
-    if (prev.type === 'class') displayClassSchedule(prev.value); 
-    else displayTeacherSchedule(prev.value); 
+    if (prev.type === 'class') displayClassSchedule(prev.value);
+    else if (prev.type === 'teacher') displayTeacherSchedule(prev.value);
+    else if (prev.type === 'patrol') displayPatrolSchedule(prev.value.day, prev.value.period); 
 } 
 
 function updateBackBtn() { 
@@ -515,16 +516,18 @@ function populateGradeSelect(selId, classes) {
 /* ═══════════════════════════════════════════════════════════
     Tab 切換
 ═══════════════════════════════════════════════════════════ */ 
-function switchTab(tab) { 
-    const tabClass = document.getElementById('tabClass'); 
-    const tabTeacher = document.getElementById('tabTeacher'); 
-    const panelClass = document.getElementById('panelClass'); 
-    const panelTeacher = document.getElementById('panelTeacher'); 
-
-    if (tabClass) tabClass.classList.toggle('active', tab === 'class'); 
-    if (tabTeacher) tabTeacher.classList.toggle('active', tab === 'teacher'); 
-    if (panelClass) panelClass.classList.toggle('hidden', tab !== 'class'); 
-    if (panelTeacher) panelTeacher.classList.toggle('hidden', tab !== 'teacher'); 
+function switchTab(tab) {
+    const tabs = {
+        class: ['tabClass', 'panelClass'],
+        teacher: ['tabTeacher', 'panelTeacher'],
+        patrol: ['tabPatrol', 'panelPatrol']
+    };
+    Object.entries(tabs).forEach(([key, ids]) => {
+        const tabEl = document.getElementById(ids[0]);
+        const panelEl = document.getElementById(ids[1]);
+        if (tabEl) tabEl.classList.toggle('active', tab === key);
+        if (panelEl) panelEl.classList.toggle('hidden', tab !== key);
+    });
 } 
 
 /* ═══════════════════════════════════════════════════════════
@@ -614,6 +617,130 @@ function submitTeacherQuery() {
 /* ═══════════════════════════════════════════════════════════
     顯示課表
 ═══════════════════════════════════════════════════════════ */ 
+
+/* ═══════════════════════════════════════════════════════════
+   巡堂課表查詢：讀取 teachername、s{星期}{節次}、c{星期}{節次}
+═══════════════════════════════════════════════════════════ */
+function submitPatrolQuery() {
+    const day = Number(document.getElementById('patrolDaySelect')?.value || 0);
+    const period = Number(document.getElementById('patrolPeriodSelect')?.value || 0);
+    const errorEl = document.getElementById('patrolError');
+    if (!day || !period) {
+        if (errorEl) errorEl.textContent = '請選擇週間星期及節次';
+        return;
+    }
+    if (errorEl) errorEl.textContent = '';
+    navHistory = [];
+    incrementViewCounter();
+    displayPatrolSchedule(day, period);
+}
+
+function getPatrolGrade(className) {
+    const name = String(className || '').trim();
+
+    // 一般班級：701～799、801～899、901～999
+    const n = parseInt(name.replace(/\D/g, ''), 10);
+    if (n >= 701 && n <= 799) return 7;
+    if (n >= 801 && n <= 899) return 8;
+    if (n >= 901 && n <= 999) return 9;
+
+    // 特殊班級依名稱前綴歸入年級
+    if (/^7(?:資源|資優)/.test(name)) return 7;
+    if (/^8(?:資源|資優|學扶)/.test(name)) return 8;
+    if (/^9(?:資源|資優)/.test(name)) return 9;
+
+    // 特教班依指定放在九年級區塊
+    if (name === '特教班') return 9;
+    return 0;
+}
+
+function formatPatrolClassName(className, grade) {
+    const name = String(className || '').trim();
+    const n = parseInt(name.replace(/\D/g, ''), 10);
+
+    if (n >= 701 && n <= 999) {
+        const gradeText = grade === 7 ? '七年' : grade === 8 ? '八年' : '九年';
+        return `${gradeText}${n % 100}班`;
+    }
+    return name;
+}
+
+function displayPatrolSchedule(day, period) {
+    const gradeBuckets = { 7: new Map(), 8: new Map(), 9: new Map() };
+    scheduleData.forEach(row => {
+        const subject = String(row[`s${day}${period}`] || '').trim();
+        const classRaw = String(row[`c${day}${period}`] || '').trim();
+        if (!subject || !classRaw || !row.teachername) return;
+
+        classRaw.split(/[\s/、,，]+/).map(x => x.trim()).filter(Boolean).forEach(className => {
+            const grade = getPatrolGrade(className);
+            if (!grade) return;
+            const bucket = gradeBuckets[grade];
+            if (!bucket.has(className)) bucket.set(className, new Set());
+            bucket.get(className).add(`${subject}｜${row.teachername}`);
+        });
+    });
+
+    const grades = [7, 8, 9];
+    const gradeTitles = { 7: '七年級', 8: '八年級', 9: '九年級' };
+    const ordered = {};
+    const specialOrder = {
+        7: ['7資源', '7資優'],
+        8: ['8資源', '8資優', '8學扶'],
+        9: ['特教班', '9資源', '9資優']
+    };
+
+    grades.forEach(g => {
+        ordered[g] = [...gradeBuckets[g].entries()].sort((a, b) => {
+            const aName = a[0];
+            const bName = b[0];
+            const aNum = parseInt(aName.replace(/\D/g, ''), 10);
+            const bNum = parseInt(bName.replace(/\D/g, ''), 10);
+            const aRegular = Number.isFinite(aNum) && Math.floor(aNum / 100) === g;
+            const bRegular = Number.isFinite(bNum) && Math.floor(bNum / 100) === g;
+
+            if (aRegular && bRegular) return aNum - bNum;
+            if (aRegular) return -1;
+            if (bRegular) return 1;
+
+            const order = specialOrder[g] || [];
+            const ai = order.indexOf(aName);
+            const bi = order.indexOf(bName);
+            return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi)
+                || aName.localeCompare(bName, 'zh-TW');
+        });
+    });
+
+    let table = '<table class="schedule-table patrol-table"><thead><tr>';
+    grades.forEach(g => table += `<th class="patrol-grade-head grade-${g}">${gradeTitles[g]}班級</th><th class="patrol-grade-head grade-${g}">科目與教師</th>`);
+    table += '</tr></thead><tbody>';
+    const maxRows = Math.max(0, ...grades.map(g => ordered[g].length));
+    for (let i = 0; i < maxRows; i++) {
+        table += '<tr>';
+        grades.forEach(g => {
+            const item = ordered[g][i];
+            if (!item) table += '<td class="td-empty"></td><td class="td-empty"></td>';
+            else {
+                table += `<td class="patrol-class grade-${g}-cell">${escText(formatPatrolClassName(item[0], g))}</td>`;
+                table += `<td class="patrol-detail">${[...item[1]].sort().map(escText).join('<br>')}</td>`;
+            }
+        });
+        table += '</tr>';
+    }
+    if (!maxRows) table += '<tr><td colspan="6" class="patrol-no-data">此星期及節次沒有七至九年級課程資料</td></tr>';
+    table += '</tbody></table>';
+
+    if (scheduleTitle) scheduleTitle.textContent = `巡堂課表｜星期${DAYS[day - 1]}｜第${period}節`;
+    if (scheduleTableContainer) scheduleTableContainer.innerHTML = table;
+    ['prevClassBtn', 'nextClassBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = 'none';
+    });
+    pushNav('patrol', { day, period });
+    showView('resultView');
+    updateBackBtn();
+}
+
 function displayClassSchedule(className) { 
     currentDisplayedClass = className; 
     pushNav('class', className); 

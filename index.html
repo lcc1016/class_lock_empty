@@ -90,6 +90,7 @@
             <div class="tab-header" style="margin-top: 15px;"> <!-- 查詢模式切換頁籤 (Tab) 標頭容器 -->
                 <button id="tabClass" class="tab-btn active" onclick="switchTab('class')">班級課表查詢</button> <!-- 切換至「班級查詢」模式的頁籤按鈕 -->
                 <button id="tabTeacher" class="tab-btn" onclick="switchTab('teacher')">教師課表查詢</button> <!-- 切換至「教師查詢」模式的頁籤按鈕 -->
+                <button id="tabPatrol" class="tab-btn" onclick="switchTab('patrol')">巡堂課表查詢</button>
             </div> <!-- 頁籤標頭結束 -->
             
             <!-- 班級查詢 Tab --> <!-- 說明區塊：班級查詢選單區塊 -->
@@ -135,6 +136,32 @@
                 <div id="teacherError" class="error-msg"></div> <!-- 顯示教師查詢未選擇等錯誤訊息的容器 -->
                 <button class="btn btn-primary btn-block mt-3" onclick="submitTeacherQuery()">查詢教師課表</button> <!-- 提交教師查詢按鈕 -->
             </div> <!-- 教師查詢面板結束 -->
+
+            <div id="panelPatrol" class="tab-panel hidden">
+                <div class="query-grid-2">
+                    <div class="form-group">
+                        <label for="patrolDaySelect" class="grade-label grade-7">週間星期</label>
+                        <select id="patrolDaySelect" class="form-control">
+                            <option value="">— 選擇星期 —</option>
+                            <option value="1">星期一</option><option value="2">星期二</option>
+                            <option value="3">星期三</option><option value="4">星期四</option>
+                            <option value="5">星期五</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="patrolPeriodSelect" class="grade-label grade-8">節次</label>
+                        <select id="patrolPeriodSelect" class="form-control">
+                            <option value="">— 選擇節次 —</option>
+                            <option value="1">第1節</option><option value="2">第2節</option>
+                            <option value="3">第3節</option><option value="4">第4節</option>
+                            <option value="5">第5節</option><option value="6">第6節</option>
+                            <option value="7">第7節</option><option value="8">第8節</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="patrolError" class="error-msg"></div>
+                <button class="btn btn-primary btn-block mt-3" onclick="submitPatrolQuery()">查詢巡堂課表</button>
+            </div>
         </div> <!-- 查詢卡片外框結束 -->
     </div> <!-- 查詢面板視圖結束 -->
     
